@@ -1,6 +1,8 @@
 # Shitty-Python-Neural-Net
 read the title lmao
 
+I don't plan to update this in the forseeable future. Pull requests/issues welcome.
+
 # Todo
 1. Make the someActivationFunction.derivative thing work instead of manually setting it in layers
 2. Instead of MSE cost, use cross entropy
