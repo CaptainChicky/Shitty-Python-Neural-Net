@@ -6,6 +6,7 @@ read the title lmao
 2. Instead of MSE cost, use cross entropy
 3. Perhaps instead of tanh as the output layer activation function, use softmax
 4. Allow the training to choose a certain subset of the total data to train with for a single epoch.
+5. Other stuff in the commented TODOs in each part of the code files
 
 (The latter three are standard for modern neural networks)
 
