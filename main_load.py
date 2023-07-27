@@ -47,7 +47,7 @@ neural_net.load("model_params.json")
 # Test the neural net #
 
 # Create some sample input data
-input_data = np.array([255, 0, 0]) # This is clearly red, but you can change it to whatever you want
+input_data = np.array([0, 12, 13]) # This is clearly red, but you can change it to whatever you want
 
 # Perform forward propagation through the network
 output_data = neural_net.forward_propagation(input_data)
@@ -62,4 +62,5 @@ if percent < 0:
     is_red = "is red"
     percent *= -1
 
-print("Verdict: the (r, g, b) color triple", is_red, "with", percent * 100, "% confidence.")
+print("Verdict: the (r, g, b) color triple", is_red, "with {:.16f}% confidence.".format(percent * 100))
+
