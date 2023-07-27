@@ -3,6 +3,8 @@ import numpy as np
 from activation_functions import ActivationFunction
 from layer import Layer
 
+# TODO:
+# Custum activation functions are indirectly related to the json loading part, so check the layer class for this
 
 class NeuralNet:
     def __init__(self):
@@ -15,6 +17,7 @@ class NeuralNet:
 
     # Propogate the input data through the ENTIRE neural network
     def forward_propagation(self, input_data):
+
         # If there are no layers, then we can't do forward propagation
         if len(self.layers) == 0:
             raise ValueError("No layers found in the neural network.")
@@ -23,16 +26,18 @@ class NeuralNet:
         # This variable will be updated as the data passes through each layer during forward propagation.
         output = input_data
 
-        # We then loops through each layer in the neural network's layers
+        # We then loop through each layer in the neural network's layers
         # For each layer, we call the forward propagation method of that layer, passing the current output as the input data
         for layer in self.layers:
             output = layer.compute_propogation(output)
 
+        # This will return the final output of the neural network after we send the input data through all the layers
         return output
     
     
-    # Save the neural network weights and biases to a text file
+    # Save the neural network weights and biases to a json file
     def save(self, filename):
+
         # Create an empty dictionary to store weights, biases, and other layer information
         weights_and_biases = {}
 
@@ -42,8 +47,9 @@ class NeuralNet:
             layer_name = f"Layer_{i}"
 
             # Store the layer's weights and biases in the dictionary as Python lists
-            # The `tolist()` method is used to convert NumPy arrays to regular Python lists for JSON serialization
+            # The tolist() method is used to convert NumPy arrays to regular Python lists for JSON serialization
             weights_and_biases[layer_name] = {
+                # Store the weights and biases as Python lists
                 "weights": layer.weights.tolist(),
                 "biases": layer.biases.tolist(),
 
@@ -60,11 +66,12 @@ class NeuralNet:
 
         # Open the file in write mode and save the weights and biases dictionary as JSON
         with open(filename, "w") as file:
-            json.dump(weights_and_biases, file)
+            json.dump(weights_and_biases, file) # dump is a funny word
 
 
-    # Load the neural network weights and biases from a text file
+    # Load the neural network weights and biases from a json file
     def load(self, filename):
+
         # Open the JSON file in read mode and load its contents into the 'data' variable
         with open(filename, "r") as file:
             data = json.load(file)
@@ -73,14 +80,20 @@ class NeuralNet:
         self.layers = []
 
         # Iterate through each layer in the JSON data
-        # Note that the layer_name is queried but never used, idk but I'll keep it just in case something breaks
+        # Note that the layer_name is queried but never used, but I'll keep it just in case something breaks, because it seems my IDE doesn't like it when I remove it
         for layer_name, parameters in data.items():
             # Extract the necessary layer parameters from the JSON data
+
+            # Convert the weights and biases from Python lists to NumPy arrays
             weights = np.array(parameters["weights"])
             biases = np.array(parameters["biases"])
+
+            # Extract the other layer parameters from the JSON data
             previousLayer_size = parameters["previousLayer_size"]
             layer_size = parameters["layer_size"]
             layer_type = parameters["layer_type"]
+
+            # Extract the activation function title from the JSON data
             activation_func_title = parameters["activation_func"]
 
             # Create a new instance of the Layer class with the appropriate parameters
@@ -90,8 +103,8 @@ class NeuralNet:
             layer.load_weights_and_biases(weights, biases)
 
             # Set the activation function for the layer based on its title
-            # Use the 'get_activation_function' method from the ActivationFunction class
-            # Note that technically this is uneeded as the activation function is already set by default in the Layer class
+            # Note that technically this is uneeded as the activation function is already set by default in the layer class
+            # However, there may be future implementations that require this functionality, so I'm keeping it here
             layer.set_activation_func(ActivationFunction.get_activation_function(activation_func_title))
 
             # Add the initialized layer to the neural network's list of layers

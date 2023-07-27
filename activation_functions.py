@@ -1,5 +1,10 @@
 import numpy as np
 
+# TODO:
+# Implement the ".derivative" method for each activation function
+# Allow the custom setting of alpha in leaky relu, as currently it is hardcoded to 0.01
+# Implement softmax activation function for the output layer
+
 class ActivationFunction:
     # Custom decorator to add a "title" attribute to the function
     @staticmethod
@@ -17,7 +22,8 @@ class ActivationFunction:
         return decorator
 
 
-    # possible activation functions
+    # Possible activation functions
+    # All functions accept arrays because they are implemented using numpy
     @staticmethod
     @with_title("sigmoid")
     def sigmoid(x):
@@ -26,7 +32,11 @@ class ActivationFunction:
     @staticmethod
     @with_title("sigmoid_derivative")
     def sigmoid_derivative(x):
-        return np.exp(x) / ((1 + np.exp(x)) ** 2)
+        # Compute the sigmoid using the previously defined sigmoid function
+        sigmoid_x = ActivationFunction.sigmoid(x)
+        
+        # Calculate the derivative directly using the sigmoid value
+        return sigmoid_x * (1 - sigmoid_x)
 
 
     @staticmethod
@@ -37,23 +47,18 @@ class ActivationFunction:
     @staticmethod
     @with_title("sign_derivative")
     def sign_derivative(x):
-        return 0
+        return np.zeros_like(x)
     
 
     @staticmethod
     @with_title("step")
     def step(x):
-        if x < 0:
-            return 0
-        elif x > 0:
-            return 1
-        else:
-            return 0.5
+        return np.where(x > 0, 1, 0.5)
         
     @staticmethod
     @with_title("step_derivative")
     def step_derivative(x):
-        return 0
+        return np.zeros_like(x)
     
 
     @staticmethod
@@ -64,15 +69,10 @@ class ActivationFunction:
     @staticmethod
     @with_title("relu_derivative")
     def relu_derivative(x):
-        if x > 0:
-            return 1
-        else:
-            return 0
+        return np.where(x > 0, 1, 0)
 
-
-    # Leaky relu avoids the problem of dying neurons
-    # Where the neuron stops learning because the gradient is 0
-    # You can set alpha to a small value like 0.01
+    # Note that leaky relu avoids the problem of dying neurons of relu, where the neuron stops learning because the gradient is 0
+    # You can set alpha to a small value like 0.01, as it is currently harcoded to
     @staticmethod
     @with_title("leaky_relu")
     def leaky_relu(x, alpha=0.01):
@@ -93,6 +93,7 @@ class ActivationFunction:
     @with_title("tanh_derivative")
     def tanh_derivative(x):
         return 1 / (np.cosh(x) ** 2)
+    
     
 
     # Function to get the activation function based on its title
