@@ -22,6 +22,23 @@ Run the main scripts lmao.
 # Notes
 Numpy is the only dependency.
 
+Check TODO comments on each python file for a more complete todo.
+
 An epoch is one iteration through the entire training set. You may generate new training sets but I haven't tested the net much with this thing because it seems to get stuck at some fixed cost and refuse to make any further progress lmao.
 
 Currently, the network is being trained to recongnize if a given RGB color triple is "red" or not, as defined in my definition of red python script which also generates the training data. The code is written noobishly so optimization would be nice.
+
+# Structure
+Activation functions contain all activation functions and derivatives.
+
+Definition of red contains the definition of what I defined as red, and generates training data.
+
+Layers contain the implementation of the layer object, which contains the weights, biases, and activation function of a layer.
+
+Neural Network contains the implementation of the neural network object, which contains the layers and loading/saving.
+
+Training contains the actual functions that modify and train the network.
+
+Main scripts are what you can run/train/blah the network with.
+
+Training data is stored in the color_data.json, and the model is saved in the model_params.json file.
