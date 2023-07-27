@@ -1,7 +1,3 @@
-# Custum model and training data
-color_data.json
-model_params.json
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
