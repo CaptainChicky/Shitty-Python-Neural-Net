@@ -43,10 +43,11 @@ neural_net.load("model_params.json")
 #   neural_net.save("model_params.json")
 
 
+
 # Test the neural net #
 
 # Create some sample input data
-input_data = np.array([255, 0, 0]) # This is clearly red
+input_data = np.array([255, 0, 0]) # This is clearly red, but you can change it to whatever you want
 
 # Perform forward propagation through the network
 output_data = neural_net.forward_propagation(input_data)

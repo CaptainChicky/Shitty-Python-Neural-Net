@@ -14,6 +14,8 @@ If you set the learning rate too high (>0.001), too high of a clipping barrier (
 
 Since the total possible training dataset is just 256<sup>3</sup> possible inputs, the network may overfit. This is what the todo #4 will fix, likely.
 
+The neural network is undertrained for values near (0, 0, 0) and (255, 255, 255) so it will output incorrect answers. This is likely due to the way how I've generated my data, but whatever lmao.
+
 # Usage
 Run the main scripts lmao. 
 
