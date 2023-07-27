@@ -32,7 +32,7 @@ neural_net.load("model_params.json")
 
 
 # Create some sample input data
-input_data = np.array([230, 115, 139])
+input_data = np.array([1, 2, 3])
 
 # Perform forward propagation through the network
 output_data = neural_net.forward_propagation(input_data)

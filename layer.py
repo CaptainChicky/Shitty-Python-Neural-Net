@@ -22,6 +22,8 @@ class Layer:
         self.weights = np.random.randn(self.layer_size, self.previousLayer_size) * std
         # self.weights = np.zeros((self.layer_size, self.previousLayer_size))
         self.biases = np.zeros(self.layer_size)
+        if (self.layer_type == 'input'):
+            self.weights = np.zeros((self.layer_size, self.previousLayer_size))
 
         # I don't know why the .derivative property doesnt wokr but i'll figure it out later
         self.activation_func.derivative = ActivationFunction.leaky_relu_derivative
