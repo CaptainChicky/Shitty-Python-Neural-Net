@@ -41,11 +41,11 @@ target_data = np.array(data["Is_Red"])
 
 # Create a Training object
 # Clip value should be around 1 to 5, but you can set it as high as you want (if you get exploding gradients, then lmfao)
-# Learning rate should be around 0.0001 to 0.001
+# Learning rate should be around 0.00001 to 0.0001
 # It's hard to strike the right training value first try, so experiment with it, because te larger the training value, the more likely you 
 # may not be able to settle down on a minimum and bounce over the place, meaning that the cost actually increases as you train
 # If you set the learning rate too low, it will take a very, very long time to train
-training = Training(neural_net, learning_rate=0.001, clip_value=5)
+training = Training(neural_net, learning_rate=0.00001, clip_value=5)
 
 # Train the neural network using your input data and target data for a specific number of epochs
 # The larger the input dataset, and the more epochs, the longer it will take to train (an epoch is a single pass through the entire dataset)
