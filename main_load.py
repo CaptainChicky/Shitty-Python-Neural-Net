@@ -113,9 +113,19 @@ for i in range(len(target_data)):
             False_negatives += 1
 
 accuracy = Num_correct / len(target_data) * 100
-precision = True_positives / (True_positives + False_positives) * 100
-recall = True_positives / (True_positives + False_negatives) * 100
+
+# Handle division by zero for precision and recall
+if (True_positives + False_positives) > 0:
+    precision = True_positives / (True_positives + False_positives) * 100
+else:
+    precision = 0.0  # Network never predicted positive class
+
+if (True_positives + False_negatives) > 0:
+    recall = True_positives / (True_positives + False_negatives) * 100
+else:
+    recall = 0.0  # No positive samples in dataset
 
 print("Accuracy: {:.2f}%".format(accuracy))
 print("Precision: {:.2f}%".format(precision))
 print("Recall: {:.2f}%".format(recall))
+print(f"\nDebug: TP={True_positives}, FP={False_positives}, FN={False_negatives}")

@@ -46,31 +46,87 @@ def generate_output(isRed):
 def generate_random_rgb():
     return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
-# Length of generation data
-# You may modify this to generate more or less data
-# Note that the more data you generate, the longer it will take to train the neural net
-dataLength = 500
+
+############################################################################################################
+# IMPORTANT: CLASS BALANCE IN TRAINING DATA
+############################################################################################################
+# When training a neural network for classification, it's critical to have BALANCED data
+# (equal numbers of each class). Here's why:
+#
+# PROBLEM: If you generate 500 random RGB colors, you'll get roughly:
+#   - 95% "not red" colors (473 samples)
+#   - 5% "red" colors (27 samples)
+#
+# This is because the "red" definition (sphere radius 127 centered at (255,0,0)) only covers
+# a small portion of the entire RGB color space (256^3 = 16.7 million possible colors).
+#
+# WHY THIS BREAKS TRAINING:
+# The neural network learns to minimize cost (error). With 95% "not red" samples, it discovers
+# a lazy strategy: "Always predict 'not red' → 95% accuracy!"
+#
+# This gives:
+#   - High accuracy (95%)
+#   - Zero precision (never correctly predicts red)
+#   - Zero recall (never detects red at all)
+#   - The network literally never outputs "red" for any input
+#
+# SOLUTION: Generate BALANCED data with 50% red and 50% not-red samples
+# This forces the network to actually learn the pattern instead of exploiting class imbalance.
+############################################################################################################
+
+# Number of samples per class (red and not-red)
+# Total dataset will be 2x this number
+samples_per_class = 250  # 250 red + 250 not-red = 500 total
 
 
-# Create a set to store unique RGB triples (we do not want duplicates)
-unique_rgb_set = set()
+# Separate sets for red and not-red samples to ensure balance
+red_samples = set()
+not_red_samples = set()
 
-# Keep generating random RGB triples until we have enough unique ones
-while len(unique_rgb_set) < dataLength:
-    unique_rgb_set.add(generate_random_rgb())
+print("Generating balanced dataset...")
+print(f"Target: {samples_per_class} red samples, {samples_per_class} not-red samples")
 
+# Keep generating until we have enough of EACH class
+# This ensures 50-50 balance instead of the natural ~5-95 imbalance
+attempts = 0
+max_attempts = 100000  # Safety limit to prevent infinite loop
 
-# Convert the set to a list
-# This is the input we want the neural net to take in
-data_entry_1 = list(unique_rgb_set)
-    
-# Create the second data entry by checking if each RGB triple is red or not
-# This is the output we want the neural net to generate
+while (len(red_samples) < samples_per_class or len(not_red_samples) < samples_per_class) and attempts < max_attempts:
+    rgb = generate_random_rgb()
+    attempts += 1
+
+    # Only add to the appropriate set if that set isn't full yet
+    if is_color_red(*rgb) and len(red_samples) < samples_per_class:
+        red_samples.add(rgb)
+    elif not is_color_red(*rgb) and len(not_red_samples) < samples_per_class:
+        not_red_samples.add(rgb)
+
+    # Progress update every 10,000 attempts
+    if attempts % 10000 == 0:
+        print(f"  Attempt {attempts}: {len(red_samples)} red, {len(not_red_samples)} not-red")
+
+print(f"\nGeneration complete after {attempts} attempts:")
+print(f"  Red samples: {len(red_samples)}")
+print(f"  Not-red samples: {len(not_red_samples)}")
+
+# Combine both sets and shuffle to mix red and not-red samples randomly
+# (important so the network doesn't see all reds first, then all not-reds)
+all_samples = list(red_samples) + list(not_red_samples)
+random.shuffle(all_samples)
+
+# Create input data (RGB values) and output data (red or not-red labels)
+data_entry_1 = all_samples
 data_entry_2 = []
 for r, g, b in data_entry_1:
     is_red = is_color_red(r, g, b)
     data_entry_2.append(generate_output(is_red))
 
+# Verify the balance (should be 50-50)
+num_red = sum(1 for output in data_entry_2 if output == (1, -1))
+num_not_red = sum(1 for output in data_entry_2 if output == (-1, 1))
+print(f"\nFinal dataset composition:")
+print(f"  Red: {num_red} ({num_red/len(data_entry_2)*100:.1f}%)")
+print(f"  Not red: {num_not_red} ({num_not_red/len(data_entry_2)*100:.1f}%)")
 
 # Combine the data entries into a dictionary
 data = {
@@ -81,6 +137,8 @@ data = {
 # Save the data as a JSON file
 with open("color_data.json", "w") as file:
     json.dump(data, file)
+
+print("\nSaved to color_data.json")
 
 
 
