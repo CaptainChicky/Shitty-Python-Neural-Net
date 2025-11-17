@@ -95,15 +95,15 @@ class Training:
     # In the backward pass, the algorithm starts from the output layer and works backward through the network
     # It calculates the gradient of the cost function with respect to the weights and biases at each layer using the chain rule
     # Note that this function is only for a single sample
+    # Returns both gradients and predicted_values to avoid redundant forward propagation
     def backpropagation(self, input_data, target_values):
-        
+
         gradients = {}  # Dictionary to store gradients for each layer's weights and biases
 
         #############################
         # Forward pass              #
         #############################
-        # Perform we perform a forward propogation to get the predicted values from the neural network
-        # This isn't needed if you want to use the predicted values as the input, but I'm doing this just because lmao idk
+        # Perform forward propogation to get the predicted values from the neural network
         predicted_values = self.neural_net.forward_propagation(input_data)
 
 
@@ -184,7 +184,7 @@ class Training:
         gradients[f"weights_0"] = np.zeros_like(self.neural_net.layers[0].weights)
         gradients[f"biases_0"] = np.zeros_like(self.neural_net.layers[0].biases)
 
-        return gradients
+        return gradients, predicted_values
 
 
     # Update the weights and biases of the neural network using the gradients obtained from backpropagation
@@ -221,22 +221,17 @@ class Training:
                 input_sample = input_data[i]
                 target_sample = target_data[i]
 
-                # Forward pass to get the predicted values from the neural network for the current input sample
-                # This may not be the most efficient way to do it, because we're doing forward propagation twice
-                # Once here, so we have an input into the cost, and once again in the backpropagation function
-                predicted_values = self.neural_net.forward_propagation(input_sample)
+                # Compute gradients using backpropagation (which also returns predicted values)
+                gradients, predicted_values = self.backpropagation(input_sample, target_sample)
 
                 # Calculate the cost for the current sample and add it to the total cost for this epoch
-                # Optimize this (see TODO list)
                 sample_cost = self.cost(predicted_values, target_sample)
                 total_cost += sample_cost
-
-                # Compute gradients using backpropagation
-                gradients = self.backpropagation(input_sample, target_sample)
 
                 # Update the parameters (weights and biases) using the computed gradients
                 self.update_parameters(gradients, self.clip_value)
 
             # Calculate the average cost for this epoch and print it
             avg_cost = total_cost / len(input_data)
+
             print(f"Epoch {epoch + 1}/{epochs}, Average Cost: {avg_cost}")

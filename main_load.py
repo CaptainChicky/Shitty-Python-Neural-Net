@@ -83,14 +83,7 @@ neural_net.load("model_params.json")
 with open("color_data.json", "r") as file:
     data = json.load(file)
 
-input_data = np.array(data["RBG_Values"])
-target_data = np.array(data["Is_Red"])
-
-# Load the test data from color_data.json
-with open("color_data.json", "r") as file:
-    data = json.load(file)
-
-input_data = np.array(data["RBG_Values"])
+input_data = np.array(data["RGB_Values"])
 target_data = np.array(data["Is_Red"])
 
 # Test the neural net
@@ -111,7 +104,7 @@ False_negatives = 0
 for i in range(len(target_data)):
     if np.array_equal(target_data[i], tempPredictionStore[i]):
         Num_correct += 1
-        if np.array_equal(target_data[i], [-1, 1]):  # Check if it's a true positive
+        if np.array_equal(target_data[i], [1, -1]):  # Check if it's a true positive (red is the positive class)
             True_positives += 1
     else:
         if np.array_equal(target_data[i], [-1, 1]):  # Check if it's a false positive

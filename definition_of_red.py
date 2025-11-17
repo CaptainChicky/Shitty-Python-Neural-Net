@@ -74,7 +74,7 @@ for r, g, b in data_entry_1:
 
 # Combine the data entries into a dictionary
 data = {
-    "RBG_Values": data_entry_1,
+    "RGB_Values": data_entry_1,
     "Is_Red": data_entry_2
 }
 
@@ -122,4 +122,5 @@ with open("color_data.json", "w") as file:
 #         softmax_probs = e_x / e_x.sum()
 # 
 #         return softmax_probs
+
 # 

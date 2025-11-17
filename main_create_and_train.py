@@ -36,7 +36,7 @@ with open("color_data.json", "r") as file:
     data = json.load(file)
 
 # Extract the RGB values and Is_Red labels from the data
-input_data = np.array(data["RBG_Values"])
+input_data = np.array(data["RGB_Values"])
 target_data = np.array(data["Is_Red"])
 
 # Create a Training object

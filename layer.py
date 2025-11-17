@@ -17,20 +17,22 @@ class Layer:
         self.previousLayer_size = previousLayer_size
         self.layer_size = layer_size
 
-        # The layer type is either input, hidden, or outpu
+        # The layer type is either input, hidden, or output
         self.layer_type = layer_type
 
-        # The activation function is the function that is applied to the weighted input for each node, which is hardcoded to be leaky relu
-        # The activation function.derivative is the derivative of the activation function, which is hardcoded to be leaky relu as well
-        # Currently, I have to manually set the derivative, but in the future, this should be updated
+        # The activation function is the function that is applied to the weighted input for each node
+        # We automatically set the derivative based on the activation function's title
         self.activation_func = activation_func
-        self.activation_func.derivative = ActivationFunction.leaky_relu_derivative
+
+        # Automatically get the derivative function based on the activation function's title
+        derivative_title = self.activation_func.title + "_derivative"
+        self.activation_func.derivative = ActivationFunction.get_activation_function(derivative_title)
 
         # We want to normalize the output layer's output to be between -1 and 1, so we use tanh for the output layer
-        # Again, we're manually setting everything, but this should be updated in the future to allow for custom activation functions
         if (self.layer_type == 'output'):
             self.activation_func = ActivationFunction.tanh
-            self.activation_func.derivative = ActivationFunction.tanh_derivative
+            derivative_title = self.activation_func.title + "_derivative"
+            self.activation_func.derivative = ActivationFunction.get_activation_function(derivative_title)
 
         # Initialize the layer's weights
         # Weights are a 2D array of size (output_size, layer_size)
