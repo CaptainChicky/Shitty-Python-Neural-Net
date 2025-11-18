@@ -1,10 +1,5 @@
 import numpy as np
 
-# TODO:
-# Implement the ".derivative" method for each activation function
-# Allow the custom setting of alpha in leaky relu, as currently it is hardcoded to 0.01
-# Implement softmax activation function for the output layer
-
 class ActivationFunction:
     # Custom decorator to add a "title" attribute to the function
     @staticmethod
