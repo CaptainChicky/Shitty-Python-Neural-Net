@@ -4,13 +4,14 @@ read the title lmao
 I don't plan to update this in the forseeable future. Pull requests/issues welcome.
 
 # Todo
-1. Make the someActivationFunction.derivative thing work instead of manually setting it in layers
+1. ~~Make the someActivationFunction.derivative thing work instead of manually setting it in layers~~ ✅ DONE - now automatically detects and sets derivatives
 2. Instead of MSE cost, use cross entropy
 3. Perhaps instead of tanh as the output layer activation function, use softmax, or maybe even sigmoid
 4. Allow the training to choose a certain subset of the total data to train with for a single epoch.
-5. Other stuff in the commented TODOs in each part of the code files
-
-(The latter three are standard for modern neural networks)
+5. ~~Optimize double forward propagation in training~~ ✅ DONE - backprop now returns both gradients and predictions
+6. Allow custom alpha values for leaky relu (currently hardcoded to 0.01)
+ 
+(Items 2-4 are standard for modern neural networks)
 
 # Known Issues
 If you set the learning rate too high (>0.001), too high of a clipping barrier (haven't tested but its a given because when I didn't clip, it just killed itself), or initialize layer weights to be too large (I initially did it with a normal distr mean0 and std1, but I had to lower the std), this network will diverge due to exploding gradients. This is a common issue with neural networks, and is usually solved by clipping the network or by using a lower learning rate. It's quite odd that such a small network will diverge, especially when the gradient technically is already clipped at 1 due to the implementation of leaky relu, but whatever lmao.

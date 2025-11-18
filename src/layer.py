@@ -38,7 +38,7 @@ class Layer:
         # Weights are a 2D array of size (output_size, layer_size)
         # Each array element in weights correspond to each node's connections to the previous layer's nodes
         # Weights are initialized randomly using a normal distribution with mean 0 and standard deviation 0.01
-        # Note that we're manually setting a standard deviation of 0.01, because if we use the default 1, we get exploding gradients
+        # Note that we're manually setting a standard deviation of 0.01, because if we use the default 1, we get vanishing gradients
         std = 0.01  # Desired standard deviation
         self.weights = np.random.randn(self.layer_size, self.previousLayer_size) * std
         # Input layer has no effect, so we just set it to 0
