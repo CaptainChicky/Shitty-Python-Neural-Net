@@ -1,4 +1,5 @@
 import numpy as np
+import inspect
 from activation_functions import ActivationFunction
 
 # TODO:
@@ -32,17 +33,18 @@ class Layer:
         # you can see exactly what alpha was used without having to look at the function definition
         #
         # What happens:
-        # - No custom params provided: Store defaults ({'alpha': 0.01}), call leaky_relu(x, alpha=0.01)
+        # - No custom params provided: Automatically extract defaults from function signature using inspect
         # - Custom params provided: Store custom ({'alpha': 0.05}), call leaky_relu(x, alpha=0.05)
         # - Non-parametric activation: Store empty dict ({}), call relu(x) with no params
         if activation_params is None:
-            # Set default parameters for known parametric activation functions
-            if activation_func == ActivationFunction.leaky_relu:
-                self.activation_params = {'alpha': 0.01}  # Matches default in activation_functions.py
-            elif activation_func == ActivationFunction.elu:
-                self.activation_params = {'alpha': 1.0}   # Matches default in activation_functions.py
-            else:
-                self.activation_params = {}  # Non-parametric activation (relu, tanh, sigmoid, etc)
+            # Automatically extract default parameters from the activation function signature
+            # This works for ANY parametric activation function without needing to hardcode each one!
+            sig = inspect.signature(activation_func)
+            self.activation_params = {
+                name: param.default
+                for name, param in sig.parameters.items()
+                if param.default != inspect.Parameter.empty and name != 'x'
+            }
         else:
             self.activation_params = activation_params  # User provided custom params
 
