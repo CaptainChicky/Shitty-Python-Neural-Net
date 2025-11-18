@@ -32,7 +32,7 @@ def generate_output(result):
 # The pure XOR problem only has 4 samples, which is too small for training
 # So we add gaussian noise to create more samples while keeping the same pattern
 
-samples_per_class = 250  # 250 zeros + 250 ones = 500 total
+samples_per_class = 500  # 500 zeros + 500 ones = 1000 total
 noise_std = 0.1  # Standard deviation of gaussian noise
 
 xor_zero_samples = []  # XOR = 0 samples

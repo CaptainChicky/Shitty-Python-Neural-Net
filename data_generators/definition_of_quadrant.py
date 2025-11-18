@@ -59,7 +59,7 @@ def generate_output(quadrant):
 # Generate balanced dataset
 # We want equal samples from each quadrant (4 classes)
 
-samples_per_quadrant = 125  # 125 * 4 = 500 total
+samples_per_quadrant = 250  # 250 * 4 = 1000 total
 
 q1_samples = []
 q2_samples = []

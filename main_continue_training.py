@@ -27,9 +27,10 @@ model_file = os.path.join(os.path.dirname(__file__), "models", "model_red.json")
 data_file = os.path.join(os.path.dirname(__file__), "data", "color_data.json")
 input_key = "RGB_Values"
 output_key = "Is_Red"
-learning_rate = 0.000005  # Lower LR for fine-tuning
+learning_rate = 0.00001  # Lower LR for fine-tuning
 clip_value = 4
-num_epochs = 500
+num_epochs = 300
+num_samples = None
 print("=" * 70)
 print("CONTINUE TRAINING: RGB Red Color Classification")
 print("=" * 70)
@@ -45,6 +46,7 @@ print("=" * 70)
 # learning_rate = 0.00005  # Lower LR for fine-tuning
 # clip_value = 4
 # num_epochs = 100
+#num_samples = None
 # print("=" * 70)
 # print("CONTINUE TRAINING: XOR Problem")
 # print("=" * 70)
@@ -60,6 +62,7 @@ print("=" * 70)
 # learning_rate = 0.000025  # Lower LR for fine-tuning
 # clip_value = 4
 # num_epochs = 200
+#num_samples = None
 # print("=" * 70)
 # print("CONTINUE TRAINING: Sine Wave Classification")
 # print("=" * 70)
@@ -75,6 +78,7 @@ print("=" * 70)
 # learning_rate = 0.00005  # Lower LR for fine-tuning
 # clip_value = 4
 # num_epochs = 200
+#num_samples = None
 # print("=" * 70)
 # print("CONTINUE TRAINING: Checkerboard Pattern")
 # print("=" * 70)
@@ -90,6 +94,7 @@ print("=" * 70)
 # learning_rate = 0.00005  # Lower LR for fine-tuning
 # clip_value = 4
 # num_epochs = 100
+#num_samples = None
 # print("=" * 70)
 # print("CONTINUE TRAINING: Quadrant Classification (MULTI-CLASS)")
 # print("=" * 70)
@@ -135,7 +140,7 @@ print()
 training = Training(neural_net, learning_rate=learning_rate, clip_value=clip_value)
 
 # Continue training
-training.train(input_data, target_data, epochs=num_epochs)
+training.train(input_data, target_data, epochs=num_epochs, samples_per_epoch=num_samples)
 
 # Save the updated model (overwrites the old one)
 neural_net.save(model_file)

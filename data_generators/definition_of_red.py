@@ -77,7 +77,7 @@ def generate_random_rgb():
 
 # Number of samples per class (red and not-red)
 # Total dataset will be 2x this number
-samples_per_class = 250  # 250 red + 250 not-red = 500 total
+samples_per_class = 500  # 500 red + 500 not-red = 1000 total
 
 
 # Separate sets for red and not-red samples to ensure balance

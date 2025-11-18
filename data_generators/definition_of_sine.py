@@ -30,7 +30,7 @@ def generate_output(is_above):
 # We'll generate points in the range x ∈ [0, 2π], y ∈ [-1.5, 1.5]
 # This covers one full sine wave period
 
-samples_per_class = 250  # 250 above + 250 below = 500 total
+samples_per_class = 500  # 500 above + 500 below = 1000 total
 
 above_samples = []
 below_samples = []

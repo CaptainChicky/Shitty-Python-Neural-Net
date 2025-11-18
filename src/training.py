@@ -214,15 +214,35 @@ class Training:
             
 
     # Train the neural network using the given input and target data for the given number of epochs
-    # Remember that a single epoch is a single iteration of the entire training set
+    # Remember that a single epoch is a single iteration of the entire training set (or a subset if samples_per_epoch is specified)
     # For each epoch, the neural net takes a small step towards a local minimum via gradient descent
-    def train(self, input_data, target_data, epochs):
+    def train(self, input_data, target_data, epochs, samples_per_epoch=None):
+        """
+        Train the neural network.
+
+        Args:
+            input_data: Training input samples (numpy array)
+            target_data: Training target values (numpy array)
+            epochs: Number of training epochs
+            samples_per_epoch: Number of samples to use per epoch (default None = use all data)
+                              If specified, randomly samples this many data points each epoch.
+                              This helps prevent overfitting and adds regularization.
+        """
 
         for epoch in range(epochs):
             total_cost = 0.0  # Variable to store the total cost for the current epoch
-            
-            # Iterate over each data point in the training set (looping through the entire training set)
-            for i in range(len(input_data)):
+
+            # Determine which samples to use for this epoch
+            if samples_per_epoch is not None and samples_per_epoch < len(input_data):
+                # Randomly sample a subset of indices for this epoch
+                # Use permutation instead of choice for better performance (no duplicate checking needed)
+                sample_indices = np.random.permutation(len(input_data))[:samples_per_epoch]
+            else:
+                # Use all data (original behavior)
+                sample_indices = range(len(input_data))
+
+            # Iterate over each selected data point for this epoch
+            for i in sample_indices:
 
                 # Get the current input and target data sample
                 input_sample = input_data[i]
@@ -239,6 +259,11 @@ class Training:
                 self.update_parameters(gradients, self.clip_value)
 
             # Calculate the average cost for this epoch and print it
-            avg_cost = total_cost / len(input_data)
+            num_samples_used = len(sample_indices)
+            avg_cost = total_cost / num_samples_used
 
-            print(f"Epoch {epoch + 1}/{epochs}, Average Cost: {avg_cost}")
+            # Show how many samples were used if using subset training
+            if samples_per_epoch is not None and samples_per_epoch < len(input_data):
+                print(f"Epoch {epoch + 1}/{epochs}, Average Cost: {avg_cost} (trained on {num_samples_used}/{len(input_data)} samples)")
+            else:
+                print(f"Epoch {epoch + 1}/{epochs}, Average Cost: {avg_cost}")

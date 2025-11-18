@@ -243,14 +243,16 @@ class ActivationFunction:
     def tanh_derivative(x):
         """
         Derivative of tanh activation function.
-
+        Uses the identity: tanh'(x) = 1 - tanh²(x) for numerical stability.
+ 
         Args:
             x: Input array
-
+ 
         Returns:
             Gradient array
         """
-        return 1 / (np.cosh(x) ** 2)
+        tanh_x = np.tanh(x)
+        return 1 - tanh_x ** 2
 
     # Swish activation (also called silu aka Sigmoid Linear Unit) with configurable alpha
     # This is a smooth, non-monotonic activation function that can outperform relu

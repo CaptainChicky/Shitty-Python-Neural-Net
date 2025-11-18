@@ -67,6 +67,11 @@ class WeightInitializer:
 
         Formula: std = sqrt(2 / fan_in)
 
+        Note: This is the BEST choice for Leaky ReLU with small alpha (e.g., 0.01).
+        The theoretical optimal for Leaky ReLU would be std = sqrt(2 / ((1 + alpha²) * fan_in)),
+        but with alpha=0.01: (1 + 0.01²) = 1.0001 ≈ 1.0, making the difference negligible.
+        Standard He init is the industry default for all ReLU-like activations.
+
         Args:
             shape: Tuple specifying the shape of the weight matrix
             fan_in: Number of input units (previousLayer_size)

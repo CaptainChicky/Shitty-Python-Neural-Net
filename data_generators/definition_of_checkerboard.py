@@ -33,7 +33,7 @@ def generate_output(is_black):
 # Generate balanced dataset
 # Domain: x ∈ [0, 4], y ∈ [0, 4]  (4x4 grid = 16 squares total, 8 black, 8 white)
 
-samples_per_class = 250  # 250 black + 250 white = 500 total
+samples_per_class = 500  # 500 black + 500 white = 1000 total
 grid_size = 1.0  # Size of each square
 
 black_samples = []

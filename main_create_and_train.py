@@ -32,8 +32,8 @@ from training import Training
 
 neural_net = NeuralNet()
 input_layer = Layer(previousLayer_size=3, layer_size=3, layer_type='input')
-hidden_layer1 = Layer(previousLayer_size=3, layer_size=10, layer_type='hidden')
-hidden_layer2 = Layer(previousLayer_size=10, layer_size=5, layer_type='hidden')
+hidden_layer1 = Layer(previousLayer_size=3, layer_size=10, layer_type='hidden', weight_init='normal', weight_init_params={'std': 0.01})
+hidden_layer2 = Layer(previousLayer_size=10, layer_size=5, layer_type='hidden', weight_init='normal', weight_init_params={'std': 0.01})
 output_layer = Layer(previousLayer_size=5, layer_size=2, layer_type='output')
 neural_net.add_layer(input_layer)
 neural_net.add_layer(hidden_layer1)
@@ -43,8 +43,9 @@ neural_net.add_layer(output_layer)
 data_file = os.path.join(os.path.dirname(__file__), "data", "color_data.json")
 input_key = "RGB_Values"
 output_key = "Is_Red"
-learning_rate = 0.00001
+learning_rate = 0.0001
 num_epochs = 500
+num_samples = 600
 save_file = os.path.join(os.path.dirname(__file__), "models", "model_red.json")
 print("=" * 70)
 print("TRAINING: RGB Red Color Classification")
@@ -73,6 +74,7 @@ print("=" * 70)
 #output_key = "Output_Values"
 #learning_rate = 0.001  # Higher learning rate for simpler problem
 #num_epochs = 500
+#num_samples = 600
 #save_file = os.path.join(os.path.dirname(__file__), "models", "model_xor.json")
 #print("=" * 70)
 #print("TRAINING: XOR Problem (Classic Neural Network Test)")
@@ -103,6 +105,7 @@ print("=" * 70)
 #output_key = "Output_Values"
 #learning_rate = 0.0001  # Lower learning rate for smooth pattern
 #num_epochs = 5000  # More epochs for periodic pattern
+#num_samples = 600
 #save_file = os.path.join(os.path.dirname(__file__), "models", "model_sine.json")
 #print("=" * 70)
 #print("TRAINING: Sine Wave Classification")
@@ -135,6 +138,7 @@ print("=" * 70)
 #output_key = "Output_Values"
 #learning_rate = 0.0005
 #num_epochs = 5000
+#num_samples = 600
 #save_file = os.path.join(os.path.dirname(__file__), "models", "model_checkerboard.json")
 #print("=" * 70)
 #print("TRAINING: Checkerboard Pattern")
@@ -166,6 +170,7 @@ print("=" * 70)
 #output_key = "Output_Values"
 #learning_rate = 0.0005
 #num_epochs = 1000
+#num_samples = 600
 #save_file = os.path.join(os.path.dirname(__file__), "models", "model_quadrant.json")
 #print("=" * 70)
 #print("TRAINING: Quadrant Classification (MULTI-CLASS)")
@@ -195,7 +200,7 @@ print()
 training = Training(neural_net, learning_rate=learning_rate, clip_value=5)
 
 # Train the neural network
-training.train(input_data, target_data, epochs=num_epochs)
+training.train(input_data, target_data, epochs=num_epochs, samples_per_epoch=num_samples)
 
 # Save the neural net
 neural_net.save(save_file)
