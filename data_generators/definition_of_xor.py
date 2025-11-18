@@ -1,5 +1,6 @@
 import json
 import random
+import os
 
 # XOR (Exclusive OR) - The Classic Neural Network Test
 # This is historically significant because it proved that you NEED hidden layers
@@ -99,7 +100,8 @@ data = {
     "Output_Values": data_entry_2
 }
 
-with open("xor_data.json", "w") as file:
+data_file = os.path.join(os.path.dirname(__file__), "..", "data", "xor_data.json")
+with open(data_file, "w") as file:
     json.dump(data, file)
 
-print("\nSaved to xor_data.json")
+print(f"\nSaved to {data_file}")

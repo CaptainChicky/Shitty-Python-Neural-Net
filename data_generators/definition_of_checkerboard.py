@@ -1,5 +1,6 @@
 import json
 import random
+import os
 
 # Checkerboard Pattern Classification
 # Task: Given a point (x, y), determine if it's on a "black" or "white" square
@@ -88,7 +89,8 @@ data = {
     "Output_Values": data_entry_2
 }
 
-with open("checkerboard_data.json", "w") as file:
+data_file = os.path.join(os.path.dirname(__file__), "..", "data", "checkerboard_data.json")
+with open(data_file, "w") as file:
     json.dump(data, file)
 
-print("\nSaved to checkerboard_data.json")
+print(f"\nSaved to {data_file}")

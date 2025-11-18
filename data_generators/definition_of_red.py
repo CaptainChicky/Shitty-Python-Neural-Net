@@ -1,6 +1,7 @@
 import json
 import math
 import random
+import os
 
 # The color red basically is defined as follows
 # Create an RGB color triple (r, g, b) and graph it on a 3D coordinate system with each axis being one of r, g, or b
@@ -135,10 +136,11 @@ data = {
 }
 
 # Save the data as a JSON file
-with open("color_data.json", "w") as file:
+data_file = os.path.join(os.path.dirname(__file__), "..", "data", "color_data.json")
+with open(data_file, "w") as file:
     json.dump(data, file)
 
-print("\nSaved to color_data.json")
+print(f"\nSaved to {data_file}")
 
 
 

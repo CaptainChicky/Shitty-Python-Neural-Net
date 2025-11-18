@@ -84,7 +84,11 @@ class Training:
         # The dPredictedValue/dZ term is the derivative of the activation function with the weighted sum of that layer as input
         # We want to find the activation function of that layer, then find the derivative of that function
         # Then we plug in the weighted sum of that node into the derivative of the activation function for all output nodes
-        dPredictedValue_dZ = self.neural_net.layers[-1].activation_func.derivative(self.neural_net.layers[-1].weighted_input)
+        output_layer = self.neural_net.layers[-1]
+        if output_layer.activation_params:
+            dPredictedValue_dZ = output_layer.activation_func.derivative(output_layer.weighted_input, **output_layer.activation_params)
+        else:
+            dPredictedValue_dZ = output_layer.activation_func.derivative(output_layer.weighted_input)
 
         # We want element-wise multiplication (Hadamard product) which is the point-wise multiplication of two arrays of the same shape
         # In numpy, we can achieve this by simply using the * operator between two arrays via numpy
@@ -163,7 +167,10 @@ class Training:
 
             # Now we're taking the activation of this layer and taking its derivative with respect to the the same layer's weighted inputs
             # This is the derivative of the activation function with this layer's weighted input as a argument
-            dActivation_dZprev = current_layer.activation_func.derivative(current_layer.weighted_input)
+            if current_layer.activation_params:
+                dActivation_dZprev = current_layer.activation_func.derivative(current_layer.weighted_input, **current_layer.activation_params)
+            else:
+                dActivation_dZprev = current_layer.activation_func.derivative(current_layer.weighted_input)
 
             # We multiply this one by one to the next derivatives, first the dZ/dA then the dA/dZ_next
             # The dot product of the next derivatives and dZ_dActivation will give a vector with the size of the current layer's nodes

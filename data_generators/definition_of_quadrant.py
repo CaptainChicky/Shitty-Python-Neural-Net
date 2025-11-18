@@ -1,5 +1,6 @@
 import json
 import random
+import os
 
 # Quadrant Classification - MULTI-CLASS (4 classes!)
 # Task: Given a point (x, y), determine which quadrant it's in
@@ -134,9 +135,10 @@ data = {
     "Output_Values": data_entry_2
 }
 
-with open("quadrant_data.json", "w") as file:
+data_file = os.path.join(os.path.dirname(__file__), "..", "data", "quadrant_data.json")
+with open(data_file, "w") as file:
     json.dump(data, file)
 
-print("\nSaved to quadrant_data.json")
+print(f"\nSaved to {data_file}")
 print("\nNOTE: This is a MULTI-CLASS problem (4 classes)")
 print("Your network needs 4 OUTPUT neurons instead of 2!")

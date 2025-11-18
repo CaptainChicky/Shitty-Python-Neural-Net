@@ -83,6 +83,18 @@ class ActivationFunction:
     def leaky_relu_derivative(x, alpha=0.01):
         return np.where(x > 0, 1, alpha)
 
+    # elu is smoother than leaky relu and can produce negative outputs, pushes mean activations closer to zero and can speed up learning
+    # When x > 0: f(x) = x
+    # When x <= 0: f(x) = alpha * (e^x - 1)
+    @staticmethod
+    @with_title("elu")
+    def elu(x, alpha=1.0):
+        return np.where(x > 0, x, alpha * (np.exp(x) - 1))
+
+    @staticmethod
+    @with_title("elu_derivative")
+    def elu_derivative(x, alpha=1.0):
+        return np.where(x > 0, 1, alpha * np.exp(x))
 
     @staticmethod
     @with_title("tanh")

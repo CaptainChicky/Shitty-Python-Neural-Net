@@ -29,7 +29,7 @@ input_key = "RGB_Values"
 output_key = "Is_Red"
 learning_rate = 0.000005  # Lower LR for fine-tuning
 clip_value = 4
-num_epochs = 100
+num_epochs = 500
 print("=" * 70)
 print("CONTINUE TRAINING: RGB Red Color Classification")
 print("=" * 70)

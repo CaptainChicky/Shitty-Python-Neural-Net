@@ -30,26 +30,26 @@ from training import Training
 # Output: 2 neurons (red vs not-red)
 # Architecture: 3 → 10 → 5 → 2
 
-#neural_net = NeuralNet()
-#input_layer = Layer(previousLayer_size=3, layer_size=3, layer_type='input')
-#hidden_layer1 = Layer(previousLayer_size=3, layer_size=10, layer_type='hidden')
-#hidden_layer2 = Layer(previousLayer_size=10, layer_size=5, layer_type='hidden')
-#output_layer = Layer(previousLayer_size=5, layer_size=2, layer_type='output')
-#neural_net.add_layer(input_layer)
-#neural_net.add_layer(hidden_layer1)
-#neural_net.add_layer(hidden_layer2)
-#neural_net.add_layer(output_layer)
-#
-#data_file = os.path.join(os.path.dirname(__file__), "data", "color_data.json")
-#input_key = "RGB_Values"
-#output_key = "Is_Red"
-#learning_rate = 0.00001
-#num_epochs = 500
-#save_file = os.path.join(os.path.dirname(__file__), "models", "model_red.json")
-#print("=" * 70)
-#print("TRAINING: RGB Red Color Classification")
-#print("Architecture: 3 → 10 → 5 → 2")
-#print("=" * 70)
+neural_net = NeuralNet()
+input_layer = Layer(previousLayer_size=3, layer_size=3, layer_type='input')
+hidden_layer1 = Layer(previousLayer_size=3, layer_size=10, layer_type='hidden')
+hidden_layer2 = Layer(previousLayer_size=10, layer_size=5, layer_type='hidden')
+output_layer = Layer(previousLayer_size=5, layer_size=2, layer_type='output')
+neural_net.add_layer(input_layer)
+neural_net.add_layer(hidden_layer1)
+neural_net.add_layer(hidden_layer2)
+neural_net.add_layer(output_layer)
+
+data_file = os.path.join(os.path.dirname(__file__), "data", "color_data.json")
+input_key = "RGB_Values"
+output_key = "Is_Red"
+learning_rate = 0.00001
+num_epochs = 500
+save_file = os.path.join(os.path.dirname(__file__), "models", "model_red.json")
+print("=" * 70)
+print("TRAINING: RGB Red Color Classification")
+print("Architecture: 3 → 10 → 5 → 2")
+print("=" * 70)
 
 
 ############################################################################################################
@@ -151,28 +151,28 @@ from training import Training
 # # Output: 4 neurons (Q1, Q2, Q3, Q4) - ONE-HOT ENCODING
 # # Architecture: 2 → 8 → 6 → 4 (NOTE: 4 output neurons for 4 classes!)
 #
-neural_net = NeuralNet()
-input_layer = Layer(previousLayer_size=2, layer_size=2, layer_type='input')
-hidden_layer1 = Layer(previousLayer_size=2, layer_size=10, layer_type='hidden')
-hidden_layer2 = Layer(previousLayer_size=10, layer_size=8, layer_type='hidden')
-output_layer = Layer(previousLayer_size=8, layer_size=4, layer_type='output')  # 4 outputs!
-neural_net.add_layer(input_layer)
-neural_net.add_layer(hidden_layer1)
-neural_net.add_layer(hidden_layer2)
-neural_net.add_layer(output_layer)
-
-data_file = os.path.join(os.path.dirname(__file__), "data", "quadrant_data.json")
-input_key = "Input_Values"
-output_key = "Output_Values"
-learning_rate = 0.0005
-num_epochs = 1000
-save_file = os.path.join(os.path.dirname(__file__), "models", "model_quadrant.json")
-print("=" * 70)
-print("TRAINING: Quadrant Classification (MULTI-CLASS)")
-print("Architecture: 2 → 8 → 6 → 4")
-print("Task: Classify points into 4 quadrants")
-print("Output: One-hot [Q1, Q2, Q3, Q4]")
-print("=" * 70)
+#neural_net = NeuralNet()
+#input_layer = Layer(previousLayer_size=2, layer_size=2, layer_type='input')
+#hidden_layer1 = Layer(previousLayer_size=2, layer_size=10, layer_type='hidden')
+#hidden_layer2 = Layer(previousLayer_size=10, layer_size=8, layer_type='hidden')
+#output_layer = Layer(previousLayer_size=8, layer_size=4, layer_type='output')  # 4 outputs!
+#neural_net.add_layer(input_layer)
+#neural_net.add_layer(hidden_layer1)
+#neural_net.add_layer(hidden_layer2)
+#neural_net.add_layer(output_layer)
+#
+#data_file = os.path.join(os.path.dirname(__file__), "data", "quadrant_data.json")
+#input_key = "Input_Values"
+#output_key = "Output_Values"
+#learning_rate = 0.0005
+#num_epochs = 1000
+#save_file = os.path.join(os.path.dirname(__file__), "models", "model_quadrant.json")
+#print("=" * 70)
+#print("TRAINING: Quadrant Classification (MULTI-CLASS)")
+#print("Architecture: 2 → 8 → 6 → 4")
+#print("Task: Classify points into 4 quadrants")
+#print("Output: One-hot [Q1, Q2, Q3, Q4]")
+#print("=" * 70)
 
 
 ############################################################################################################

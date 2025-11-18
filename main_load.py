@@ -22,15 +22,15 @@ from neural_network import NeuralNet
 ############################################################################################################
 # CONFIGURATION 1: RGB Red Color Classification
 ############################################################################################################
-#model_file = os.path.join(os.path.dirname(__file__), "models", "model_red.json")
-#data_file = os.path.join(os.path.dirname(__file__), "data", "color_data.json")
-#input_key = "RGB_Values"
-##output_key = "Is_Red"
-#num_classes = 2
-#class_names = ["Red", "Not Red"]
-#print("=" * 70)
-#print("TESTING: RGB Red Color Classification")
-#print("=" * 70)
+model_file = os.path.join(os.path.dirname(__file__), "models", "model_red.json")
+data_file = os.path.join(os.path.dirname(__file__), "data", "color_data.json")
+input_key = "RGB_Values"
+output_key = "Is_Red"
+num_classes = 2
+class_names = ["Red", "Not Red"]
+print("=" * 70)
+print("TESTING: RGB Red Color Classification")
+print("=" * 70)
 
 
 ############################################################################################################
@@ -78,15 +78,15 @@ from neural_network import NeuralNet
 ############################################################################################################
 # # CONFIGURATION 5: Quadrant Classification (MULTI-CLASS!)
 # ############################################################################################################
-model_file = os.path.join(os.path.dirname(__file__), "models", "model_quadrant.json")
-data_file = os.path.join(os.path.dirname(__file__), "data", "quadrant_data.json")
-input_key = "Input_Values"
-output_key = "Output_Values"
-num_classes = 4  # MULTI-CLASS!
-class_names = ["Q1 (x>0,y>0)", "Q2 (x<0,y>0)", "Q3 (x<0,y<0)", "Q4 (x>0,y<0)"]
-print("=" * 70)
-print("TESTING: Quadrant Classification (MULTI-CLASS)")
-print("=" * 70)
+#model_file = os.path.join(os.path.dirname(__file__), "models", "model_quadrant.json")
+#data_file = os.path.join(os.path.dirname(__file__), "data", "quadrant_data.json")
+#input_key = "Input_Values"
+#output_key = "Output_Values"
+#num_classes = 4  # MULTI-CLASS!
+#class_names = ["Q1 (x>0,y>0)", "Q2 (x<0,y>0)", "Q3 (x<0,y<0)", "Q4 (x>0,y<0)"]
+#print("=" * 70)
+#print("TESTING: Quadrant Classification (MULTI-CLASS)")
+#print("=" * 70)
 
 
 ############################################################################################################
@@ -98,37 +98,6 @@ neural_net = NeuralNet()
 neural_net.load(model_file)
 
 print(f"\nLoaded model from {model_file}")
-
-
-############################################################################################################
-# OPTIONAL: Continue Training a Loaded Model
-############################################################################################################
-# You may train the neural network again if you want to, perhaps even with new data
-# This is useful for fine-tuning or training on additional data
-#
-# from training import Training
-#
-# # Load data from the JSON file
-# with open(data_file, "r") as file:
-#     data = json.load(file)
-#
-# # Extract the input values and output labels from the data
-# input_data_train = np.array(data[input_key])
-# target_data_train = np.array(data[output_key])
-#
-# # Create a Training object with learning rates and clip values that you want
-# # You may have to adjust these values to be smaller, because the neural network is already trained into a local minimum
-# # So smaller learning rates and clip values may either get it stuck, or increase the cost function for some reason
-# # Experiment with it to get a balance because honestly it's just trial and error
-# training = Training(neural_net, learning_rate=0.00001, clip_value=4)
-#
-# # Train the neural network using your input data and target data for a specific number of epochs
-# num_epochs = 500
-# training.train(input_data_train, target_data_train, epochs=num_epochs)
-#
-# # Save the neural network
-# neural_net.save(model_file)
-
 
 ############################################################################################################
 # Evaluate the Model on Test Data

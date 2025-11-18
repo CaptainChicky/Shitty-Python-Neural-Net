@@ -10,7 +10,7 @@ class Layer:
 
     # We're going to use leaky relu by default, but this can change!!!
     # Each "layer" consists of a set of nodes, and connections to the previous layer's nodes
-    def __init__(self, previousLayer_size, layer_size, layer_type, activation_func=ActivationFunction.leaky_relu):
+    def __init__(self, previousLayer_size, layer_size, layer_type, activation_func=ActivationFunction.leaky_relu, activation_params=None):
 
         # The layer size is the number of nodes in this layer
         # The previous layer size is the number of nodes in the previous layer
@@ -24,6 +24,28 @@ class Layer:
         # We automatically set the derivative based on the activation function's title
         self.activation_func = activation_func
 
+        # Store activation function parameters (e.g., alpha for leaky_relu, alpha for elu)
+        #
+        # NOTE: Even though activation functions have default parameters in activation_functions.py
+        # (e.g., leaky_relu has alpha=0.01), we explicitly store those defaults here
+        # This is redundant, BUT it makes saved model JSON files self-documenting
+        # you can see exactly what alpha was used without having to look at the function definition
+        #
+        # What happens:
+        # - No custom params provided: Store defaults ({'alpha': 0.01}), call leaky_relu(x, alpha=0.01)
+        # - Custom params provided: Store custom ({'alpha': 0.05}), call leaky_relu(x, alpha=0.05)
+        # - Non-parametric activation: Store empty dict ({}), call relu(x) with no params
+        if activation_params is None:
+            # Set default parameters for known parametric activation functions
+            if activation_func == ActivationFunction.leaky_relu:
+                self.activation_params = {'alpha': 0.01}  # Matches default in activation_functions.py
+            elif activation_func == ActivationFunction.elu:
+                self.activation_params = {'alpha': 1.0}   # Matches default in activation_functions.py
+            else:
+                self.activation_params = {}  # Non-parametric activation (relu, tanh, sigmoid, etc)
+        else:
+            self.activation_params = activation_params  # User provided custom params
+
         # Automatically get the derivative function based on the activation function's title
         derivative_title = self.activation_func.title + "_derivative"
         self.activation_func.derivative = ActivationFunction.get_activation_function(derivative_title)
@@ -31,6 +53,7 @@ class Layer:
         # We want to normalize the output layer's output to be between -1 and 1, so we use tanh for the output layer
         if (self.layer_type == 'output'):
             self.activation_func = ActivationFunction.tanh
+            self.activation_params = {}  # tanh has no parameters
             derivative_title = self.activation_func.title + "_derivative"
             self.activation_func.derivative = ActivationFunction.get_activation_function(derivative_title)
 
@@ -83,13 +106,21 @@ class Layer:
         # Apply the activation function based on the layer type
         if self.layer_type == 'input': # Input layer is just the input data
             output = input_data  # Weights/biases aren't applied since its just nodes, no connections to a nonexistent previous layer
-            
+
         elif self.layer_type == 'output': # Note that output and hidden layers are computationally the same, but we differentiate them for clarity
             # Activation function normalizes the output of the layer to be between -1 and 1 if we are using tanh (which is hardcoded here for now)
-            output = self.activation_func(weighted_input)  # Apply activation for output layer
+            # Pass activation parameters if they exist
+            if self.activation_params:
+                output = self.activation_func(weighted_input, **self.activation_params)
+            else:
+                output = self.activation_func(weighted_input)
 
         elif self.layer_type == 'hidden':
-            output = self.activation_func(weighted_input)  # Apply activation for hidden layers
+            # Pass activation parameters if they exist
+            if self.activation_params:
+                output = self.activation_func(weighted_input, **self.activation_params)
+            else:
+                output = self.activation_func(weighted_input)
 
         else:
             raise ValueError("Invalid layer type.")

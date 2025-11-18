@@ -60,6 +60,9 @@ class NeuralNet:
                 # Store the title of the activation function as a string for later reference
                 "activation_func": str(layer.activation_func.title),
 
+                # Store activation function parameters (e.g., alpha for leaky_relu)
+                "activation_params": layer.activation_params,
+
                 # Store the layer type ('input', 'hidden', or 'output') as a string
                 "layer_type": layer.layer_type,
             }
@@ -96,8 +99,12 @@ class NeuralNet:
             # Extract the activation function title from the JSON data
             activation_func_title = parameters["activation_func"]
 
+            # Extract activation function parameters (if they exist in the saved model)
+            # For backwards compatibility, default to empty dict if not present
+            activation_params = parameters.get("activation_params", {})
+
             # Create a new instance of the Layer class with the appropriate parameters
-            layer = Layer(previousLayer_size, layer_size, layer_type)
+            layer = Layer(previousLayer_size, layer_size, layer_type, activation_params=activation_params)
 
             # Load the weights and biases into the layer instance
             layer.load_weights_and_biases(weights, biases)
