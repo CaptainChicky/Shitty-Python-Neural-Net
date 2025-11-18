@@ -3,9 +3,6 @@ import numpy as np
 from activation_functions import ActivationFunction
 from layer import Layer
 
-# TODO:
-# Custum activation functions are indirectly related to the json loading part, so check the layer class for this
-
 class NeuralNet:
     def __init__(self):
         # The neural network is a collection of layers, which is initialized as an empty list of layers

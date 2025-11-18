@@ -515,6 +515,42 @@ class ActivationFunction:
         """
         # Return softmax output as a placeholder - never actually used
         return ActivationFunction.softmax(x)
+    
+    
+    # Linear activation (identity function) - used for regression with unbounded outputs
+    # f(x) = x (no transformation applied)
+    @staticmethod
+    @with_title("linear")
+    def linear(x):
+        """
+        Linear activation function (identity function) for regression.
+        Returns the input unchanged - allows unbounded outputs.
+        Used in output layer for regression tasks (predicting continuous values).
+ 
+        Args:
+            x: Input array
+ 
+        Returns:
+            The input array unchanged
+        """
+        return x
+ 
+    @staticmethod
+    @with_title("linear_derivative")
+    def linear_derivative(x):
+        """
+        Derivative of linear activation function.
+ 
+        Since f(x) = x, the derivative f'(x) = 1 for all inputs.
+        Returns an array of ones with the same shape as input.
+ 
+        Args:
+            x: Input array
+ 
+        Returns:
+            Array of ones with same shape as input
+        """
+        return np.ones_like(x)
 
 
     # Function to get the activation function based on its title

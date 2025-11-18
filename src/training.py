@@ -2,9 +2,6 @@ import numpy as np
 from layer import Layer
 from neural_network import NeuralNet
 
-# TODO:
-# Cost function is inefficiently built, because it's built to average out the entire data set, but we're only using it for a single sample
-
 class Training:
     
     # For the constructor, we're passing in normal things like the net itself, and the learning rate

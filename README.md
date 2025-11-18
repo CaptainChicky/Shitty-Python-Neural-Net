@@ -100,8 +100,8 @@ Currently, the network is being trained to recongnize if a given RGB color tripl
 - **Input layers:** No activation (just passes data through)
 - **Hidden layers:** Leaky ReLU (default, alpha=0.01) - alternatives: ReLU, ELU
   - Note: Sigmoid/Tanh can be used but suffer from vanishing gradients in deep networks
-- **Output layers:** Tanh (default) - alternatives: Sigmoid (binary classification), Softmax (multi-class classification)
-  - For regression: Linear activation (identity function) is standard but NOT currently implemented in this codebase
+- **Output layers:** Tanh (default) - alternatives: Sigmoid (binary classification), Softmax (multi-class classification), Linear (regression)
+  - **Linear (identity)** is now available for regression with unbounded outputs
  
 ## Available Activation Functions
  
@@ -170,6 +170,21 @@ Currently, the network is being trained to recongnize if a given RGB color tripl
                 activation_params={'alpha': 0.5})
   ```
  
+### Linear (Identity Function)
+- **Formula:** `f(x) = x`
+- **Range:** (-∞, ∞) - unbounded
+- **When to use:** Output layer for regression with unbounded targets (house prices, temperatures, stock prices, etc.)
+- **Why it's good:** Allows network to output any value, not constrained to a specific range
+- **Derivative:** `f'(x) = 1` - gradient passes through unchanged, very stable
+- **Usage:**
+  ```python
+  # For regression predicting continuous unbounded values
+  output_layer = Layer(5, 1, 'output', activation_func=ActivationFunction.linear)
+
+  # Use with MSE or MAE cost functions
+  training = Training(neural_net, learning_rate=0.001, clip_value=1, cost_function='mse')
+  ```
+
 ### Sign and Step
 - **Sign:** Returns -1, 0, or 1 based on sign of input
 - **Step:** Returns 0 or 1 based on threshold
@@ -238,15 +253,17 @@ output_layer = Layer(5, 4, 'output', activation_func=ActivationFunction.softmax)
   - Range: [-1, 1]
   - Use with: MSE or MAE loss
   - Data format: `[1, -1]` for class A, `[-1, 1]` for class B
-
-**For Regression (not currently implemented):**
-- **Linear activation (identity function):** `f(x) = x`
-  - No transformation applied to weighted input
-  - Allows unbounded outputs (e.g., predicting house prices $100k-$1M directly)
+- **Linear (identity function):** For regression with unbounded outputs
+  - Range: (-∞, ∞) - unbounded
+  - Formula: `f(x) = x` (no transformation applied)
   - Derivative: `f'(x) = 1` (gradient passes through unchanged)
   - Use with: MSE or MAE loss
-  - Example: Predicting continuous values like temperature, price, distance
-  - Not implemented in this codebase - would need to add an identity activation function
+  - Example: Predicting house prices ($100k-$1M), temperatures (-20°C to 40°C), stock prices, etc.
+  - Usage:
+    ```python
+    output_layer = Layer(5, 1, 'output', activation_func=ActivationFunction.linear)
+    training = Training(neural_net, learning_rate=0.001, clip_value=1, cost_function='mse')
+    ```
  
 ## Mix and Match Example
  
@@ -552,25 +569,27 @@ training = Training(neural_net, learning_rate=0.001, clip_value=1, cost_function
 
 **IMPORTANT:** This compatibility matrix is for **OUTPUT LAYER** activations only!
 
-### Output Layer Activations (for Classification/Regression)
+### Activation Functions - Where They Can Be Used
 
-These activations are designed for output layers:
-- **Tanh** - Default for output, works with [-1, 1] data
-- **Sigmoid** - For binary classification with [0, 1] data
-- **Softmax** - For multi-class classification (probability distributions)
+**Softmax - OUTPUT LAYERS ONLY (hardcoded restriction):**
+- **Must be used on output layer only** due to hardcoded special case in backpropagation
+- For multi-class classification (probability distributions)
+- MUST use with Categorical Cross-Entropy
 
-### Hidden Layer Activations (NOT for Output)
-
-These activations are designed for hidden layers and should NOT be used on output layers for classification:
-- **ReLU, Leaky ReLU (default), ELU** - Use in hidden layers only
-- Exception: Can be used for regression output with unbounded targets, but not implemented/tested in this codebase
+**All Other Activations - Can Be Used Anywhere (Hidden OR Output):**
+- **Sigmoid, Tanh, ReLU, Leaky ReLU, ELU, Linear** - No hardcoded restrictions, can be used on any layer
+- **Typical usage patterns:**
+  - **Sigmoid/Tanh**: Commonly used on output for classification, rarely on hidden (vanishing gradients)
+  - **ReLU/Leaky ReLU/ELU**: Commonly used on hidden layers, can be used on output for regression
+  - **Linear**: Primarily for regression output (unbounded), rarely on hidden (no non-linearity)
+- But technically all work on both hidden and output layers
 
 ### Recommended Combinations (What Works Correctly)
 
 | Cost Function | Compatible **Output** Activations | Data Format | Use Case |
 |---------------|----------------------|-------------|----------|
-| **MSE** | Tanh, Sigmoid | Any range | General-purpose, regression, classification with [-1, 1] or [0, 1] data |
-| **MAE** | Tanh, Sigmoid | Any range | General-purpose, robust to outliers |
+| **MSE** | Tanh, Sigmoid, ReLU, Leaky ReLU, ELU, Linear | Any range | General-purpose, regression, classification with [-1, 1] or [0, 1] data |
+| **MAE** | Tanh, Sigmoid, ReLU, Leaky ReLU, ELU, Linear | Any range | General-purpose, robust to outliers |
 | **Binary Cross-Entropy** | **Sigmoid ONLY** | Targets: 0 or 1 | Binary classification (2 classes) |
 | **Categorical Cross-Entropy** | **Softmax ONLY** | Targets: one-hot encoded | Multi-class classification (3+ classes) |
 
@@ -581,10 +600,12 @@ These activations are designed for hidden layers and should NOT be used on outpu
 | **Tanh** | ✅ Works | ✅ Works | ❌ **WRONG** (negative outputs clipped) | ❌ **WRONG** (negative outputs clipped) | Classification with [-1, 1] data |
 | **Sigmoid** | ✅ Works | ✅ Works | ✅ **RECOMMENDED** | ⚠️ **WRONG** (sum ≠ 1, not a distribution) | Binary classification |
 | **Softmax** | ❌ **WRONG GRADIENTS** | ❌ **WRONG GRADIENTS** | ❌ **WRONG GRADIENTS** | ✅ **REQUIRED** | Multi-class classification |
+| **Linear** | ✅ **RECOMMENDED** | ✅ **RECOMMENDED** | ❌ **WRONG** (unbounded, not [0, 1]) | ❌ **WRONG** (unbounded, not [0, 1]) | **Regression** (unbounded outputs) |
+| **ReLU/Leaky ReLU/ELU** | ✅ Works | ✅ Works | ❌ **WRONG** (unbounded, not [0, 1]) | ❌ **WRONG** (unbounded, not [0, 1]) | Regression (but Linear is better) |
 
 **Notes:**
-- **ReLU/Leaky ReLU/ELU**: Hidden layer activations only, not shown in this matrix
-- Using ReLU-family on output layers is possible for regression but not recommended/tested for this codebase
+- **Softmax**: Only activation with hardcoded restrictions - MUST be on output layer with Categorical CE
+- **All others**: Can technically be used anywhere, but typical usage patterns vary (see above)
 
 **Legend:**
 - ✅ Works correctly
