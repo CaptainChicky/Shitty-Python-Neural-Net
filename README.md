@@ -45,8 +45,6 @@ training.train(input_data, target_data, epochs=500, samples_per_epoch=400)
 # Notes
 Numpy is the only dependency.
 
-Check TODO comments on each python file for a more complete todo.
-
 An epoch is one iteration through the entire training set. You may generate new training sets but I haven't tested the net much with this thing because it seems to get stuck at some fixed cost and refuse to make any further progress lmao.
 
 Currently, the network is being trained to recongnize if a given RGB color triple is "red" or not, as defined in my definition of red python script which also generates the training data. The code is written noobishly so optimization would be nice.

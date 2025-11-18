@@ -17,7 +17,7 @@ from neural_network import NeuralNet
 # CONFIGURATION 3: Sine Wave Classification
 # CONFIGURATION 4: Checkerboard Pattern
 # CONFIGURATION 5: Quadrant Classification (MULTI-CLASS - 4 outputs!)
-# CONFIGURATION 6: House Price Regression (LINEAR - NOTE: Requires different evaluation!)
+# CONFIGURATION 6: House Price Regression (LINEAR ACTIVATION!)
 # CONFIGURATION 7: Iris Flower Classification (SOFTMAX + CATEGORICAL CE!)
 
 
