@@ -14,6 +14,36 @@ class Training:
         self.clip_value = clip_value
         self.cost_function = cost_function if cost_function is not None else 'mse'
 
+        # Validate cost function and output activation pairing
+        # In case someone retarded uses it i guess
+        #==========================================================================
+        output_layer = neural_net.layers[-1]
+        output_activation = output_layer.activation_func.title
+
+        # RULE 1: Binary Cross-Entropy REQUIRES Sigmoid activation
+        if self.cost_function == 'binary_crossentropy':
+            if output_activation != 'sigmoid':
+                raise ValueError(
+                    f"Binary cross-entropy loss REQUIRES sigmoid output activation.\n"
+                    f"Current output activation: '{output_activation}'\n"
+                )
+
+        # RULE 2: Categorical Cross-Entropy REQUIRES Softmax activation
+        if self.cost_function == 'categorical_crossentropy':
+            if output_activation != 'softmax':
+                raise ValueError(
+                    f"Categorical cross-entropy loss REQUIRES softmax output activation.\n"
+                    f"Current output activation: '{output_activation}'\n"
+                )
+
+        # RULE 3: Softmax REQUIRES Categorical Cross-Entropy
+        if output_activation == 'softmax':
+            if self.cost_function != 'categorical_crossentropy':
+                raise ValueError(
+                    f"Softmax output activation REQUIRES categorical cross-entropy loss.\n"
+                    f"Current cost function: '{self.cost_function}'\n"
+                )
+        #==========================================================================
 
     # These are our cost functions and friends
     #

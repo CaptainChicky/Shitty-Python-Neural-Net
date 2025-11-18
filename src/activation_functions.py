@@ -285,11 +285,14 @@ class ActivationFunction:
         Returns:
             Gradient array
         """
-        # Derivative: f'(x) = f(x) + sigmoid(alpha*x) * (1 - f(x))
-        # Or equivalently: f'(x) = alpha*f(x) + sigmoid(alpha*x)*(1 - alpha*f(x))
+        # Swish(x) = x * sigmoid(alpha*x)
+        # Derivative: f'(x) = sigmoid(alpha*x) + alpha * f(x) * (1 - sigmoid(alpha*x))
+        # Using product rule: d/dx[x * σ(αx)] = σ(αx) + x * α * σ'(αx)
+        #                                      = σ(αx) + x * α * σ(αx) * (1 - σ(αx))
+        #                                      = σ(αx) + α * Swish(x) * (1 - σ(αx))
         sigmoid_val = 1 / (1 + np.exp(-alpha * x))
         swish_val = x * sigmoid_val
-        return swish_val + sigmoid_val * (1 - swish_val)
+        return sigmoid_val + alpha * swish_val * (1 - sigmoid_val)
 
     # SELU (Scaled Exponential Linear Unit) - a REAL 2-parameter activation function!
     # Used in Self-Normalizing Neural Networks (Klambauer et al., 2017)
