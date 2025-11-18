@@ -22,7 +22,7 @@ from neural_network import NeuralNet
 ############################################################################################################
 # CONFIGURATION 1: RGB Red Color Classification
 ############################################################################################################
-#model_file = os.path.join(os.path.dirname(__file__), "models", "model_params.json")
+#model_file = os.path.join(os.path.dirname(__file__), "models", "model_red.json")
 #data_file = os.path.join(os.path.dirname(__file__), "data", "color_data.json")
 #input_key = "RGB_Values"
 ##output_key = "Is_Red"

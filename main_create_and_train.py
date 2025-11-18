@@ -45,7 +45,7 @@ from training import Training
 #output_key = "Is_Red"
 #learning_rate = 0.00001
 #num_epochs = 500
-#save_file = os.path.join(os.path.dirname(__file__), "models", "model_params.json")
+#save_file = os.path.join(os.path.dirname(__file__), "models", "model_red.json")
 #print("=" * 70)
 #print("TRAINING: RGB Red Color Classification")
 #print("Architecture: 3 → 10 → 5 → 2")

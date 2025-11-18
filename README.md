@@ -61,7 +61,7 @@ Currently, the network is being trained to recongnize if a given RGB color tripl
 │   └── quadrant_data.json
 │
 ├── models/                     # Trained models (JSON)
-│   ├── model_params.json       # RGB classifier
+│   ├── model_red.json       # RGB classifier
 │   ├── model_xor.json
 │   ├── model_sine.json
 │   ├── model_checkerboard.json
@@ -96,7 +96,7 @@ Currently, the network is being trained to recongnize if a given RGB color tripl
    ```
 
 4. Models are saved to the `models/` directory automatically:
-   - RGB → `models/model_params.json`
+   - RGB → `models/model_red.json`
    - XOR → `models/model_xor.json`
    - Sine → `models/model_sine.json`
    - Checkerboard → `models/model_checkerboard.json`
@@ -265,7 +265,7 @@ After training, use `main_load.py` to evaluate your model:
 TESTING: RGB Red Color Classification
 ======================================================================
 
-Loaded model from model_params.json
+Loaded model from model_red.json
 Loaded 500 test samples from color_data.json
 
 ======================================================================
