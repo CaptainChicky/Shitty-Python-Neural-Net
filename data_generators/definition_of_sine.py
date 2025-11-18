@@ -18,13 +18,13 @@ def is_above_sine(x, y):
 def generate_output(is_above):
     """
     Output encoding:
-    - Above sine wave → [1, -1]
-    - Below sine wave → [-1, 1]
+    - Above sine wave → [1, 0]
+    - Below sine wave → [0, 1]
     """
     if is_above:
-        return (1, -1)
+        return (1, 0)
     else:
-        return (-1, 1)
+        return (0, 1)
 
 # Generate balanced dataset
 # We'll generate points in the range x ∈ [0, 2π], y ∈ [-1.5, 1.5]
@@ -76,8 +76,8 @@ for x, y in all_samples:
     data_entry_2.append(generate_output(is_above))
 
 # Verify balance
-num_above = sum(1 for output in data_entry_2 if output == (1, -1))
-num_below = sum(1 for output in data_entry_2 if output == (-1, 1))
+num_above = sum(1 for output in data_entry_2 if output == (1, 0))
+num_below = sum(1 for output in data_entry_2 if output == (0, 1))
 print(f"\nFinal dataset composition:")
 print(f"  Above sine: {num_above} ({num_above/len(data_entry_2)*100:.1f}%)")
 print(f"  Below sine: {num_below} ({num_below/len(data_entry_2)*100:.1f}%)")

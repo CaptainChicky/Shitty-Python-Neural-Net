@@ -9,151 +9,147 @@ from neural_network import NeuralNet
 from training import Training
 
 ############################################################################################################
-# CHOOSE WHICH MODEL TO CONTINUE TRAINING:
-# Uncomment ONE of the 7 configurations below
+# CONFIGURATION SELECTOR - Change this number to select which model to continue training (1-7)
 ############################################################################################################
-
-# CONFIGURATION 1: RGB Red Color Classification
-# CONFIGURATION 2: XOR Problem
-# CONFIGURATION 3: Sine Wave Classification
-# CONFIGURATION 4: Checkerboard Pattern
-# CONFIGURATION 5: Quadrant Classification (MULTI-CLASS - 4 outputs!)
-# CONFIGURATION 6: House Price Regression (LINEAR ACTIVATION!)
-# CONFIGURATION 7: Iris Flower Classification (SOFTMAX + CATEGORICAL CE!)
-
+CONFIG_TO_RUN = 3
 
 ############################################################################################################
-# CONFIGURATION 1: RGB Red Color Classification
+# CONFIGURATION DEFINITIONS
 ############################################################################################################
-#model_file = os.path.join(os.path.dirname(__file__), "models", "model_red.json")
-#data_file = os.path.join(os.path.dirname(__file__), "data", "color_data.json")
-#input_key = "RGB_Values"
-#output_key = "Is_Red"
-#learning_rate = 0.00001  # Lower LR for fine-tuning
-#clip_value = 4
-#num_epochs = 300
-#num_samples = None
-#print("=" * 70)
-#print("CONTINUE TRAINING: RGB Red Color Classification")
-#print("=" * 70)
+
+def get_configuration(config_num):
+    """
+    Returns the configuration for continuing training of the specified model.
+    Lower learning rates are used for fine-tuning.
+    """
+
+    configs = {
+        1: {
+            'name': 'RGB Red Color Classification',
+            'model_file': 'model_red.json',
+            'data_file': 'color_data.json',
+            'input_key': 'RGB_Values',
+            'output_key': 'Is_Red',
+            'learning_rate': 0.00005,  # Lower LR for fine-tuning
+            'clip_value': 4,
+            'num_epochs': 300,
+            'num_samples': 900,
+            'cost_function': 'mse', # we initially trained with mae, but we can switch cost functions! Now mse :) 
+            # like we can switch between mse ⟷ mae, but switching to or from a CE is trickly, refer to readme!!
+        },
+
+        2: {
+            'name': 'XOR Problem',
+            'model_file': 'model_xor.json',
+            'data_file': 'xor_data.json',
+            'input_key': 'Input_Values',
+            'output_key': 'Output_Values',
+            'learning_rate': 0.0005,
+            'clip_value': 4,
+            'num_epochs': 300,
+            'num_samples': 900,
+            'cost_function': 'mse', # technically you can put `None` which defaults to `'mse'`. 
+        },
+
+        3: {
+            'name': 'Sine Wave Classification',
+            'model_file': 'model_sine.json',
+            'data_file': 'sine_data.json',
+            'input_key': 'Input_Values',
+            'output_key': 'Output_Values',
+            'learning_rate': 0.00005,
+            'clip_value': 4,
+            'num_epochs': 500,
+            'num_samples': 900,
+            'cost_function': 'binary_crossentropy',
+        },
+
+        4: {
+            'name': 'Checkerboard Pattern',
+            'model_file': 'model_checkerboard.json',
+            'data_file': 'checkerboard_data.json',
+            'input_key': 'Input_Values',
+            'output_key': 'Output_Values',
+            'learning_rate': 0.0001,
+            'clip_value': 4,
+            'num_epochs': 500,
+            'num_samples': 700,
+            'cost_function': 'mse',
+        },
+
+        5: {
+            'name': 'Quadrant Classification (MULTI-CLASS)',
+            'model_file': 'model_quadrant.json',
+            'data_file': 'quadrant_data.json',
+            'input_key': 'Input_Values',
+            'output_key': 'Output_Values',
+            'learning_rate': 0.0002,
+            'clip_value': 4,
+            'num_epochs': 300,
+            'num_samples': 700,
+            'cost_function': 'mae',
+        },
+
+        6: {
+            'name': 'House Price Regression (LINEAR OUTPUT)',
+            'model_file': 'model_linear_regression.json',
+            'data_file': 'linear_regression_data.json',
+            'input_key': 'Input_Values',
+            'output_key': 'Output_Values',
+            'learning_rate': 0.0005,
+            'clip_value': 4,
+            'num_epochs': 300,
+            'num_samples': 800,
+            'cost_function': 'mse',
+        },
+
+        7: {
+            'name': 'Iris Flower Classification (SOFTMAX + CATEGORICAL CE)',
+            'model_file': 'model_iris.json',
+            'data_file': 'iris_data.json',
+            'input_key': 'Input_Values',
+            'output_key': 'Output_Values',
+            'learning_rate': 0.0005,
+            'clip_value': 4,
+            'num_epochs': 300,
+            'num_samples': 800,
+            'cost_function': 'categorical_crossentropy',
+        },
+    }
+
+    if config_num not in configs:
+        raise ValueError(f"Invalid configuration number: {config_num}. Must be 1-7.")
+
+    return configs[config_num]
 
 
 ############################################################################################################
-# # CONFIGURATION 2: XOR Problem
-# ############################################################################################################
-# model_file = os.path.join(os.path.dirname(__file__), "models", "model_xor.json")
-# data_file = os.path.join(os.path.dirname(__file__), "data", "xor_data.json")
-# input_key = "Input_Values"
-# output_key = "Output_Values"
-# learning_rate = 0.00005  # Lower LR for fine-tuning
-# clip_value = 4
-# num_epochs = 100
-#num_samples = None
-# print("=" * 70)
-# print("CONTINUE TRAINING: XOR Problem")
-# print("=" * 70)
-
-
+# MAIN EXECUTION
 ############################################################################################################
-# # CONFIGURATION 3: Sine Wave Classification
-# ############################################################################################################
-# model_file = os.path.join(os.path.dirname(__file__), "models", "model_sine.json")
-# data_file = os.path.join(os.path.dirname(__file__), "data", "sine_data.json")
-# input_key = "Input_Values"
-# output_key = "Output_Values"
-# learning_rate = 0.000025  # Lower LR for fine-tuning
-# clip_value = 4
-# num_epochs = 200
-#num_samples = None
-# print("=" * 70)
-# print("CONTINUE TRAINING: Sine Wave Classification")
-# print("=" * 70)
 
+# Get the selected configuration
+config = get_configuration(CONFIG_TO_RUN)
 
-############################################################################################################
-# # CONFIGURATION 4: Checkerboard Pattern
-# ############################################################################################################
-# model_file = os.path.join(os.path.dirname(__file__), "models", "model_checkerboard.json")
-# data_file = os.path.join(os.path.dirname(__file__), "data", "checkerboard_data.json")
-# input_key = "Input_Values"
-# output_key = "Output_Values"
-# learning_rate = 0.00005  # Lower LR for fine-tuning
-# clip_value = 4
-# num_epochs = 200
-#num_samples = None
-# print("=" * 70)
-# print("CONTINUE TRAINING: Checkerboard Pattern")
-# print("=" * 70)
-
-
-############################################################################################################
-# # CONFIGURATION 5: Quadrant Classification (MULTI-CLASS!)
-# ############################################################################################################
-# model_file = os.path.join(os.path.dirname(__file__), "models", "model_quadrant.json")
-# data_file = os.path.join(os.path.dirname(__file__), "data", "quadrant_data.json")
-# input_key = "Input_Values"
-# output_key = "Output_Values"
-# learning_rate = 0.00005  # Lower LR for fine-tuning
-# clip_value = 4
-# num_epochs = 100
-#num_samples = None
-# print("=" * 70)
-# print("CONTINUE TRAINING: Quadrant Classification (MULTI-CLASS)")
-# print("=" * 70)
-
-
-############################################################################################################
-# # CONFIGURATION 6: House Price Regression (LINEAR ACTIVATION!)
-############################################################################################################
-#model_file = os.path.join(os.path.dirname(__file__), "models", "model_linear_regression.json")
-#data_file = os.path.join(os.path.dirname(__file__), "data", "linear_regression_data.json")
-#input_key = "Input_Values"
-#output_key = "Output_Values"
-#learning_rate = 0.00001  # Lower LR for fine-tuning
-#clip_value = 4
-#num_epochs = 100
-#num_samples = 900
-#cost_func = None
-#print("=" * 70)
-#print("CONTINUE TRAINING: House Price Regression (LINEAR ACTIVATION)")
-#print("=" * 70)
-
-
-############################################################################################################
-# # CONFIGURATION 7: Iris Flower Classification (SOFTMAX + CATEGORICAL CE!)
-############################################################################################################
-model_file = os.path.join(os.path.dirname(__file__), "models", "model_iris.json")
-data_file = os.path.join(os.path.dirname(__file__), "data", "iris_data.json")
-input_key = "Input_Values"
-output_key = "Output_Values"
-learning_rate = 0.00001  # Lower LR for fine-tuning
-clip_value = 4
-num_epochs = 100
-num_samples = 850
-cost_func = 'categorical_crossentropy'  # REQUIRED for softmax multi-class!
+# Print configuration info
 print("=" * 70)
-print("CONTINUE TRAINING: Iris Flower Classification (SOFTMAX + CATEGORICAL CE)")
+print(f"CONTINUE TRAINING: {config['name']}")
 print("=" * 70)
-
-
-############################################################################################################
-# CONTINUE TRAINING CODE
-############################################################################################################
+print()
 
 # Load the existing neural net
+model_file = os.path.join(os.path.dirname(__file__), "models", config['model_file'])
 neural_net = NeuralNet()
 neural_net.load(model_file)
-
-print(f"\nLoaded existing model from {model_file}")
+print(f"Loaded existing model from {config['model_file']}")
 
 # Load training data
+data_file = os.path.join(os.path.dirname(__file__), "data", config['data_file'])
 with open(data_file, "r") as file:
     data = json.load(file)
 
-input_data = np.array(data[input_key])
-target_data = np.array(data[output_key])
-
-print(f"Loaded {len(input_data)} training samples from {data_file}")
+input_data = np.array(data[config['input_key']])
+target_data = np.array(data[config['output_key']])
+print(f"Loaded {len(input_data)} training samples from {config['data_file']}")
 print()
 
 # Important notes about continuing training
@@ -166,24 +162,24 @@ print("- Cost may not decrease much if model is already well-trained")
 print("- If cost INCREASES, learning rate is too high or model is overfitting")
 print("=" * 70)
 print()
-print(f"Learning rate: {learning_rate}")
-print(f"Clip value: {clip_value}")
-print(f"Additional epochs: {num_epochs}")
+print(f"Learning rate: {config['learning_rate']}")
+print(f"Clip value: {config['clip_value']}")
+print(f"Additional epochs: {config['num_epochs']}")
+print(f"Cost function: {config['cost_function']}")
 print()
 
 # Create a Training object with LOWER learning rate for fine-tuning
-# Using a lower learning rate prevents the model from "forgetting" what it already learned
-training = Training(neural_net, learning_rate=learning_rate, clip_value=clip_value, cost_function=cost_func)
+training = Training(neural_net, learning_rate=config['learning_rate'], clip_value=config['clip_value'], cost_function=config['cost_function'])
 
 # Continue training
-training.train(input_data, target_data, epochs=num_epochs, samples_per_epoch=num_samples)
+training.train(input_data, target_data, epochs=config['num_epochs'], samples_per_epoch=config['num_samples'])
 
 # Save the updated model (overwrites the old one)
 neural_net.save(model_file)
 
 print()
 print("=" * 70)
-print(f"Continue-training complete! Updated model saved to {model_file}")
+print(f"Continue-training complete! Updated model saved to {config['model_file']}")
 print("=" * 70)
 print()
 print("TIP: Run main_load.py to see if performance improved")
