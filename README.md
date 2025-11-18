@@ -31,22 +31,46 @@ An epoch is one iteration through the entire training set. You may generate new 
 
 Currently, the network is being trained to recongnize if a given RGB color triple is "red" or not, as defined in my definition of red python script which also generates the training data. The code is written noobishly so optimization would be nice.
 
-# Structure
-**I built everything in this order btw**
+# Repository Structure
 
-Activation functions contain all activation functions and derivatives.
-
-Definition of red contains the definition of what I defined as red, and generates training data.
-
-Layers contain the implementation of the layer object, which contains the weights, biases, and activation function of a layer.
-
-Neural Network contains the implementation of the neural network object, which contains the layers and loading/saving.
-
-Training contains the actual functions that modify and train the network, including the backpropagation, and makes heavy use of linalg.
-
-Main scripts are what you can run/train/blah the network with.
-
-Note: *Training data is stored in the* `color_data.json` *, and the model is saved in the* `model_params.json` *file.*
+```
+/
+├── main_create_and_train.py    # Train new models
+├── main_load.py                # Evaluate trained models
+├── main_continue_training.py   # Fine-tune existing models
+├── README.md
+│
+├── src/                        # Core neural network code
+│   ├── activation_functions.py # Activation functions and derivatives
+│   ├── layer.py                # Layer implementation
+│   ├── neural_network.py       # Neural network class
+│   └── training.py             # Training and backpropagation
+│
+├── data_generators/            # Dataset generation scripts
+│   ├── definition_of_red.py
+│   ├── definition_of_xor.py
+│   ├── definition_of_sine.py
+│   ├── definition_of_checkerboard.py
+│   └── definition_of_quadrant.py
+│
+├── data/                       # Generated datasets (JSON)
+│   ├── color_data.json
+│   ├── xor_data.json
+│   ├── sine_data.json
+│   ├── checkerboard_data.json
+│   └── quadrant_data.json
+│
+├── models/                     # Trained models (JSON)
+│   ├── model_params.json       # RGB classifier
+│   ├── model_xor.json
+│   ├── model_sine.json
+│   ├── model_checkerboard.json
+│   └── model_quadrant.json
+│
+└── docs/                       # Documentation
+    ├── GRADIENT_ANALYSIS.md
+    └── TRAINING_GUIDE.md
+```
 
 -----
 # Training Guide: 5 Classification Problems
@@ -55,11 +79,11 @@ Note: *Training data is stored in the* `color_data.json` *, and the model is sav
 
 1. Generate data for the problem you want:
    ```bash
-   python definition_of_red.py        # RGB color classification
-   python definition_of_xor.py        # XOR problem
-   python definition_of_sine.py       # Sine wave classification
-   python definition_of_checkerboard.py  # Checkerboard pattern
-   python definition_of_quadrant.py   # Quadrant classification
+   python data_generators/definition_of_red.py        # RGB color classification
+   python data_generators/definition_of_xor.py        # XOR problem
+   python data_generators/definition_of_sine.py       # Sine wave classification
+   python data_generators/definition_of_checkerboard.py  # Checkerboard pattern
+   python data_generators/definition_of_quadrant.py   # Quadrant classification
    ```
 
 2. Edit `main_create_and_train.py`:
@@ -71,12 +95,12 @@ Note: *Training data is stored in the* `color_data.json` *, and the model is sav
    python main_create_and_train.py
    ```
 
-4. Models are saved to different files automatically:
-   - RGB → `model_params.json`
-   - XOR → `model_xor.json`
-   - Sine → `model_sine.json`
-   - Checkerboard → `model_checkerboard.json`
-   - Quadrant → `model_quadrant.json`
+4. Models are saved to the `models/` directory automatically:
+   - RGB → `models/model_params.json`
+   - XOR → `models/model_xor.json`
+   - Sine → `models/model_sine.json`
+   - Checkerboard → `models/model_checkerboard.json`
+   - Quadrant → `models/model_quadrant.json`
 
 ---
 

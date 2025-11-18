@@ -1,5 +1,10 @@
 import json
 import numpy as np
+import os
+import sys
+
+# Add src directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 from neural_network import NeuralNet
 
 ############################################################################################################
@@ -17,8 +22,8 @@ from neural_network import NeuralNet
 ############################################################################################################
 # CONFIGURATION 1: RGB Red Color Classification
 ############################################################################################################
-#model_file = "model_params.json"
-#data_file = "color_data.json"
+#model_file = os.path.join(os.path.dirname(__file__), "models", "model_params.json")
+#data_file = os.path.join(os.path.dirname(__file__), "data", "color_data.json")
 #input_key = "RGB_Values"
 ##output_key = "Is_Red"
 #num_classes = 2
@@ -31,8 +36,8 @@ from neural_network import NeuralNet
 ############################################################################################################
 # # CONFIGURATION 2: XOR Problem
 # ############################################################################################################
-#model_file = "model_xor.json"
-#data_file = "xor_data.json"
+#model_file = os.path.join(os.path.dirname(__file__), "models", "model_xor.json")
+#data_file = os.path.join(os.path.dirname(__file__), "data", "xor_data.json")
 #input_key = "Input_Values"
 #output_key = "Output_Values"
 #num_classes = 2
@@ -45,8 +50,8 @@ from neural_network import NeuralNet
 ############################################################################################################
 # # CONFIGURATION 3: Sine Wave Classification
 # ############################################################################################################
-#model_file = "model_sine.json"
-#data_file = "sine_data.json"
+#model_file = os.path.join(os.path.dirname(__file__), "models", "model_sine.json")
+#data_file = os.path.join(os.path.dirname(__file__), "data", "sine_data.json")
 #input_key = "Input_Values"
 #output_key = "Output_Values"
 #num_classes = 2
@@ -59,8 +64,8 @@ from neural_network import NeuralNet
 ############################################################################################################
 # # CONFIGURATION 4: Checkerboard Pattern
 # ############################################################################################################
-#model_file = "model_checkerboard.json"
-#data_file = "checkerboard_data.json"
+#model_file = os.path.join(os.path.dirname(__file__), "models", "model_checkerboard.json")
+#data_file = os.path.join(os.path.dirname(__file__), "data", "checkerboard_data.json")
 #input_key = "Input_Values"
 #output_key = "Output_Values"
 #num_classes = 2
@@ -73,8 +78,8 @@ from neural_network import NeuralNet
 ############################################################################################################
 # # CONFIGURATION 5: Quadrant Classification (MULTI-CLASS!)
 # ############################################################################################################
-model_file = "model_quadrant.json"
-data_file = "quadrant_data.json"
+model_file = os.path.join(os.path.dirname(__file__), "models", "model_quadrant.json")
+data_file = os.path.join(os.path.dirname(__file__), "data", "quadrant_data.json")
 input_key = "Input_Values"
 output_key = "Output_Values"
 num_classes = 4  # MULTI-CLASS!

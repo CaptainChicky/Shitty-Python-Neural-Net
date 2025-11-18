@@ -1,5 +1,10 @@
 import json
 import numpy as np
+import os
+import sys
+
+# Add src directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 from layer import Layer
 from neural_network import NeuralNet
 from training import Training
@@ -35,12 +40,12 @@ from training import Training
 #neural_net.add_layer(hidden_layer2)
 #neural_net.add_layer(output_layer)
 #
-#data_file = "color_data.json"
+#data_file = os.path.join(os.path.dirname(__file__), "data", "color_data.json")
 #input_key = "RGB_Values"
 #output_key = "Is_Red"
 #learning_rate = 0.00001
 #num_epochs = 500
-#save_file = "model_params.json"
+#save_file = os.path.join(os.path.dirname(__file__), "models", "model_params.json")
 #print("=" * 70)
 #print("TRAINING: RGB Red Color Classification")
 #print("Architecture: 3 → 10 → 5 → 2")
@@ -63,12 +68,12 @@ from training import Training
 #neural_net.add_layer(hidden_layer1)
 #neural_net.add_layer(output_layer)
 #
-#data_file = "xor_data.json"
+#data_file = os.path.join(os.path.dirname(__file__), "data", "xor_data.json")
 #input_key = "Input_Values"
 #output_key = "Output_Values"
 #learning_rate = 0.001  # Higher learning rate for simpler problem
 #num_epochs = 500
-#save_file = "model_xor.json"
+#save_file = os.path.join(os.path.dirname(__file__), "models", "model_xor.json")
 #print("=" * 70)
 #print("TRAINING: XOR Problem (Classic Neural Network Test)")
 #print("Architecture: 2 → 4 → 2")
@@ -93,12 +98,12 @@ from training import Training
 #neural_net.add_layer(hidden_layer2)
 #neural_net.add_layer(output_layer)
 #
-#data_file = "sine_data.json"
+#data_file = os.path.join(os.path.dirname(__file__), "data", "sine_data.json")
 #input_key = "Input_Values"
 #output_key = "Output_Values"
 #learning_rate = 0.0001  # Lower learning rate for smooth pattern
 #num_epochs = 5000  # More epochs for periodic pattern
-#save_file = "model_sine.json"
+#save_file = os.path.join(os.path.dirname(__file__), "models", "model_sine.json")
 #print("=" * 70)
 #print("TRAINING: Sine Wave Classification")
 #print("Architecture: 2 → 12 → 8 → 2")
@@ -125,12 +130,12 @@ from training import Training
 #neural_net.add_layer(hidden_layer2)
 #neural_net.add_layer(output_layer)
 #
-#data_file = "checkerboard_data.json"
+#data_file = os.path.join(os.path.dirname(__file__), "data", "checkerboard_data.json")
 #input_key = "Input_Values"
 #output_key = "Output_Values"
 #learning_rate = 0.0005
 #num_epochs = 5000
-#save_file = "model_checkerboard.json"
+#save_file = os.path.join(os.path.dirname(__file__), "models", "model_checkerboard.json")
 #print("=" * 70)
 #print("TRAINING: Checkerboard Pattern")
 #print("Architecture: 2 → 16 → 8 → 8 → 2")
@@ -156,12 +161,12 @@ neural_net.add_layer(hidden_layer1)
 neural_net.add_layer(hidden_layer2)
 neural_net.add_layer(output_layer)
 
-data_file = "quadrant_data.json"
+data_file = os.path.join(os.path.dirname(__file__), "data", "quadrant_data.json")
 input_key = "Input_Values"
 output_key = "Output_Values"
 learning_rate = 0.0005
 num_epochs = 1000
-save_file = "model_quadrant.json"
+save_file = os.path.join(os.path.dirname(__file__), "models", "model_quadrant.json")
 print("=" * 70)
 print("TRAINING: Quadrant Classification (MULTI-CLASS)")
 print("Architecture: 2 → 8 → 6 → 4")
