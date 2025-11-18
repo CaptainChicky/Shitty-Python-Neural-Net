@@ -17,71 +17,71 @@ from neural_network import NeuralNet
 ############################################################################################################
 # CONFIGURATION 1: RGB Red Color Classification
 ############################################################################################################
-model_file = "model_params.json"
-data_file = "color_data.json"
-input_key = "RGB_Values"
-output_key = "Is_Red"
-num_classes = 2
-class_names = ["Red", "Not Red"]
-print("=" * 70)
-print("TESTING: RGB Red Color Classification")
-print("=" * 70)
+#model_file = "model_params.json"
+#data_file = "color_data.json"
+#input_key = "RGB_Values"
+##output_key = "Is_Red"
+#num_classes = 2
+#class_names = ["Red", "Not Red"]
+#print("=" * 70)
+#print("TESTING: RGB Red Color Classification")
+#print("=" * 70)
 
 
 ############################################################################################################
 # # CONFIGURATION 2: XOR Problem
 # ############################################################################################################
-# model_file = "model_xor.json"
-# data_file = "xor_data.json"
-# input_key = "Input_Values"
-# output_key = "Output_Values"
-# num_classes = 2
-# class_names = ["XOR=0", "XOR=1"]
-# print("=" * 70)
-# print("TESTING: XOR Problem")
-# print("=" * 70)
+#model_file = "model_xor.json"
+#data_file = "xor_data.json"
+#input_key = "Input_Values"
+#output_key = "Output_Values"
+#num_classes = 2
+#class_names = ["XOR=0", "XOR=1"]
+#print("=" * 70)
+#print("TESTING: XOR Problem")
+#print("=" * 70)
 
 
 ############################################################################################################
 # # CONFIGURATION 3: Sine Wave Classification
 # ############################################################################################################
-# model_file = "model_sine.json"
-# data_file = "sine_data.json"
-# input_key = "Input_Values"
-# output_key = "Output_Values"
-# num_classes = 2
-# class_names = ["Below Sine", "Above Sine"]
-# print("=" * 70)
-# print("TESTING: Sine Wave Classification")
-# print("=" * 70)
+#model_file = "model_sine.json"
+#data_file = "sine_data.json"
+#input_key = "Input_Values"
+#output_key = "Output_Values"
+#num_classes = 2
+#class_names = ["Below Sine", "Above Sine"]
+#print("=" * 70)
+#print("TESTING: Sine Wave Classification")
+#print("=" * 70)
 
 
 ############################################################################################################
 # # CONFIGURATION 4: Checkerboard Pattern
 # ############################################################################################################
-# model_file = "model_checkerboard.json"
-# data_file = "checkerboard_data.json"
-# input_key = "Input_Values"
-# output_key = "Output_Values"
-# num_classes = 2
-# class_names = ["Black", "White"]
-# print("=" * 70)
-# print("TESTING: Checkerboard Pattern")
-# print("=" * 70)
+#model_file = "model_checkerboard.json"
+#data_file = "checkerboard_data.json"
+#input_key = "Input_Values"
+#output_key = "Output_Values"
+#num_classes = 2
+#class_names = ["Black", "White"]
+#print("=" * 70)
+#print("TESTING: Checkerboard Pattern")
+#print("=" * 70)
 
 
 ############################################################################################################
 # # CONFIGURATION 5: Quadrant Classification (MULTI-CLASS!)
 # ############################################################################################################
-# model_file = "model_quadrant.json"
-# data_file = "quadrant_data.json"
-# input_key = "Input_Values"
-# output_key = "Output_Values"
-# num_classes = 4  # MULTI-CLASS!
-# class_names = ["Q1 (x>0,y>0)", "Q2 (x<0,y>0)", "Q3 (x<0,y<0)", "Q4 (x>0,y<0)"]
-# print("=" * 70)
-# print("TESTING: Quadrant Classification (MULTI-CLASS)")
-# print("=" * 70)
+model_file = "model_quadrant.json"
+data_file = "quadrant_data.json"
+input_key = "Input_Values"
+output_key = "Output_Values"
+num_classes = 4  # MULTI-CLASS!
+class_names = ["Q1 (x>0,y>0)", "Q2 (x<0,y>0)", "Q3 (x<0,y<0)", "Q4 (x>0,y<0)"]
+print("=" * 70)
+print("TESTING: Quadrant Classification (MULTI-CLASS)")
+print("=" * 70)
 
 
 ############################################################################################################

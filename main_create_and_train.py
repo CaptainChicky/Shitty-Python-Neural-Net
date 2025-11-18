@@ -25,26 +25,26 @@ from training import Training
 # Output: 2 neurons (red vs not-red)
 # Architecture: 3 → 10 → 5 → 2
 
-neural_net = NeuralNet()
-input_layer = Layer(previousLayer_size=3, layer_size=3, layer_type='input')
-hidden_layer1 = Layer(previousLayer_size=3, layer_size=10, layer_type='hidden')
-hidden_layer2 = Layer(previousLayer_size=10, layer_size=5, layer_type='hidden')
-output_layer = Layer(previousLayer_size=5, layer_size=2, layer_type='output')
-neural_net.add_layer(input_layer)
-neural_net.add_layer(hidden_layer1)
-neural_net.add_layer(hidden_layer2)
-neural_net.add_layer(output_layer)
-
-data_file = "color_data.json"
-input_key = "RGB_Values"
-output_key = "Is_Red"
-learning_rate = 0.00001
-num_epochs = 500
-save_file = "model_params.json"
-print("=" * 70)
-print("TRAINING: RGB Red Color Classification")
-print("Architecture: 3 → 10 → 5 → 2")
-print("=" * 70)
+#neural_net = NeuralNet()
+#input_layer = Layer(previousLayer_size=3, layer_size=3, layer_type='input')
+#hidden_layer1 = Layer(previousLayer_size=3, layer_size=10, layer_type='hidden')
+#hidden_layer2 = Layer(previousLayer_size=10, layer_size=5, layer_type='hidden')
+#output_layer = Layer(previousLayer_size=5, layer_size=2, layer_type='output')
+#neural_net.add_layer(input_layer)
+#neural_net.add_layer(hidden_layer1)
+#neural_net.add_layer(hidden_layer2)
+#neural_net.add_layer(output_layer)
+#
+#data_file = "color_data.json"
+#input_key = "RGB_Values"
+#output_key = "Is_Red"
+#learning_rate = 0.00001
+#num_epochs = 500
+#save_file = "model_params.json"
+#print("=" * 70)
+#print("TRAINING: RGB Red Color Classification")
+#print("Architecture: 3 → 10 → 5 → 2")
+#print("=" * 70)
 
 
 ############################################################################################################
@@ -55,24 +55,24 @@ print("=" * 70)
 # # Output: 2 neurons (0 vs 1)
 # # Architecture: 2 → 4 → 2 (smaller network for simpler problem)
 #
-# neural_net = NeuralNet()
-# input_layer = Layer(previousLayer_size=2, layer_size=2, layer_type='input')
-# hidden_layer1 = Layer(previousLayer_size=2, layer_size=4, layer_type='hidden')
-# output_layer = Layer(previousLayer_size=4, layer_size=2, layer_type='output')
-# neural_net.add_layer(input_layer)
-# neural_net.add_layer(hidden_layer1)
-# neural_net.add_layer(output_layer)
+#neural_net = NeuralNet()
+#input_layer = Layer(previousLayer_size=2, layer_size=2, layer_type='input')
+#hidden_layer1 = Layer(previousLayer_size=2, layer_size=4, layer_type='hidden')
+#output_layer = Layer(previousLayer_size=4, layer_size=2, layer_type='output')
+#neural_net.add_layer(input_layer)
+#neural_net.add_layer(hidden_layer1)
+#neural_net.add_layer(output_layer)
 #
-# data_file = "xor_data.json"
-# input_key = "Input_Values"
-# output_key = "Output_Values"
-# learning_rate = 0.0001  # Higher learning rate for simpler problem
-# num_epochs = 500
-# save_file = "model_xor.json"
-# print("=" * 70)
-# print("TRAINING: XOR Problem (Classic Neural Network Test)")
-# print("Architecture: 2 → 4 → 2")
-# print("=" * 70)
+#data_file = "xor_data.json"
+#input_key = "Input_Values"
+#output_key = "Output_Values"
+#learning_rate = 0.001  # Higher learning rate for simpler problem
+#num_epochs = 500
+#save_file = "model_xor.json"
+#print("=" * 70)
+#print("TRAINING: XOR Problem (Classic Neural Network Test)")
+#print("Architecture: 2 → 4 → 2")
+#print("=" * 70)
 
 
 ############################################################################################################
@@ -83,27 +83,27 @@ print("=" * 70)
 # # Output: 2 neurons (above vs below)
 # # Architecture: 2 → 12 → 8 → 2 (more neurons to learn periodic pattern)
 #
-# neural_net = NeuralNet()
-# input_layer = Layer(previousLayer_size=2, layer_size=2, layer_type='input')
-# hidden_layer1 = Layer(previousLayer_size=2, layer_size=12, layer_type='hidden')
-# hidden_layer2 = Layer(previousLayer_size=12, layer_size=8, layer_type='hidden')
-# output_layer = Layer(previousLayer_size=8, layer_size=2, layer_type='output')
-# neural_net.add_layer(input_layer)
-# neural_net.add_layer(hidden_layer1)
-# neural_net.add_layer(hidden_layer2)
-# neural_net.add_layer(output_layer)
+#neural_net = NeuralNet()
+#input_layer = Layer(previousLayer_size=2, layer_size=2, layer_type='input')
+#hidden_layer1 = Layer(previousLayer_size=2, layer_size=12, layer_type='hidden')
+#hidden_layer2 = Layer(previousLayer_size=12, layer_size=8, layer_type='hidden')
+#output_layer = Layer(previousLayer_size=8, layer_size=2, layer_type='output')
+#neural_net.add_layer(input_layer)
+#neural_net.add_layer(hidden_layer1)
+#neural_net.add_layer(hidden_layer2)
+#neural_net.add_layer(output_layer)
 #
-# data_file = "sine_data.json"
-# input_key = "Input_Values"
-# output_key = "Output_Values"
-# learning_rate = 0.00005  # Lower learning rate for smooth pattern
-# num_epochs = 1000  # More epochs for periodic pattern
-# save_file = "model_sine.json"
-# print("=" * 70)
-# print("TRAINING: Sine Wave Classification")
-# print("Architecture: 2 → 12 → 8 → 2")
-# print("Task: Points above/below y = sin(x)")
-# print("=" * 70)
+#data_file = "sine_data.json"
+#input_key = "Input_Values"
+#output_key = "Output_Values"
+#learning_rate = 0.0001  # Lower learning rate for smooth pattern
+#num_epochs = 5000  # More epochs for periodic pattern
+#save_file = "model_sine.json"
+#print("=" * 70)
+#print("TRAINING: Sine Wave Classification")
+#print("Architecture: 2 → 12 → 8 → 2")
+#print("Task: Points above/below y = sin(x)")
+#print("=" * 70)
 
 
 ############################################################################################################
@@ -114,27 +114,28 @@ print("=" * 70)
 # # Output: 2 neurons (black vs white)
 # # Architecture: 2 → 16 → 8 → 2 (many neurons for multiple decision boundaries)
 #
-# neural_net = NeuralNet()
-# input_layer = Layer(previousLayer_size=2, layer_size=2, layer_type='input')
-# hidden_layer1 = Layer(previousLayer_size=2, layer_size=16, layer_type='hidden')
-# hidden_layer2 = Layer(previousLayer_size=16, layer_size=8, layer_type='hidden')
-# output_layer = Layer(previousLayer_size=8, layer_size=2, layer_type='output')
-# neural_net.add_layer(input_layer)
-# neural_net.add_layer(hidden_layer1)
-# neural_net.add_layer(hidden_layer2)
-# neural_net.add_layer(output_layer)
+#neural_net = NeuralNet()
+#input_layer = Layer(previousLayer_size=2, layer_size=2, layer_type='input')
+#hidden_layer1 = Layer(previousLayer_size=2, layer_size=16, layer_type='hidden')
+#hidden_layer2 = Layer(previousLayer_size=16, layer_size=8, layer_type='hidden')
+#hidden_layer3 = Layer(previousLayer_size=8, layer_size=8, layer_type='hidden')
+#output_layer = Layer(previousLayer_size=8, layer_size=2, layer_type='output')
+#neural_net.add_layer(input_layer)
+#neural_net.add_layer(hidden_layer1)
+#neural_net.add_layer(hidden_layer2)
+#neural_net.add_layer(output_layer)
 #
-# data_file = "checkerboard_data.json"
-# input_key = "Input_Values"
-# output_key = "Output_Values"
-# learning_rate = 0.0001
-# num_epochs = 800
-# save_file = "model_checkerboard.json"
-# print("=" * 70)
-# print("TRAINING: Checkerboard Pattern")
-# print("Architecture: 2 → 16 → 8 → 2")
-# print("Task: Classify checkerboard squares")
-# print("=" * 70)
+#data_file = "checkerboard_data.json"
+#input_key = "Input_Values"
+#output_key = "Output_Values"
+#learning_rate = 0.0005
+#num_epochs = 5000
+#save_file = "model_checkerboard.json"
+#print("=" * 70)
+#print("TRAINING: Checkerboard Pattern")
+#print("Architecture: 2 → 16 → 8 → 8 → 2")
+#print("Task: Classify checkerboard squares")
+#print("=" * 70)
 
 
 ############################################################################################################
@@ -145,28 +146,28 @@ print("=" * 70)
 # # Output: 4 neurons (Q1, Q2, Q3, Q4) - ONE-HOT ENCODING
 # # Architecture: 2 → 8 → 6 → 4 (NOTE: 4 output neurons for 4 classes!)
 #
-# neural_net = NeuralNet()
-# input_layer = Layer(previousLayer_size=2, layer_size=2, layer_type='input')
-# hidden_layer1 = Layer(previousLayer_size=2, layer_size=8, layer_type='hidden')
-# hidden_layer2 = Layer(previousLayer_size=8, layer_size=6, layer_type='hidden')
-# output_layer = Layer(previousLayer_size=6, layer_size=4, layer_type='output')  # 4 outputs!
-# neural_net.add_layer(input_layer)
-# neural_net.add_layer(hidden_layer1)
-# neural_net.add_layer(hidden_layer2)
-# neural_net.add_layer(output_layer)
-#
-# data_file = "quadrant_data.json"
-# input_key = "Input_Values"
-# output_key = "Output_Values"
-# learning_rate = 0.0001
-# num_epochs = 500
-# save_file = "model_quadrant.json"
-# print("=" * 70)
-# print("TRAINING: Quadrant Classification (MULTI-CLASS)")
-# print("Architecture: 2 → 8 → 6 → 4")
-# print("Task: Classify points into 4 quadrants")
-# print("Output: One-hot [Q1, Q2, Q3, Q4]")
-# print("=" * 70)
+neural_net = NeuralNet()
+input_layer = Layer(previousLayer_size=2, layer_size=2, layer_type='input')
+hidden_layer1 = Layer(previousLayer_size=2, layer_size=10, layer_type='hidden')
+hidden_layer2 = Layer(previousLayer_size=10, layer_size=8, layer_type='hidden')
+output_layer = Layer(previousLayer_size=8, layer_size=4, layer_type='output')  # 4 outputs!
+neural_net.add_layer(input_layer)
+neural_net.add_layer(hidden_layer1)
+neural_net.add_layer(hidden_layer2)
+neural_net.add_layer(output_layer)
+
+data_file = "quadrant_data.json"
+input_key = "Input_Values"
+output_key = "Output_Values"
+learning_rate = 0.0005
+num_epochs = 1000
+save_file = "model_quadrant.json"
+print("=" * 70)
+print("TRAINING: Quadrant Classification (MULTI-CLASS)")
+print("Architecture: 2 → 8 → 6 → 4")
+print("Task: Classify points into 4 quadrants")
+print("Output: One-hot [Q1, Q2, Q3, Q4]")
+print("=" * 70)
 
 
 ############################################################################################################
