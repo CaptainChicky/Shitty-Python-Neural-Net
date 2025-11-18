@@ -10,7 +10,7 @@ from training import Training
 
 ############################################################################################################
 # CHOOSE WHICH MODEL TO CONTINUE TRAINING:
-# Uncomment ONE of the 5 configurations below
+# Uncomment ONE of the 7 configurations below
 ############################################################################################################
 
 # CONFIGURATION 1: RGB Red Color Classification
@@ -18,22 +18,24 @@ from training import Training
 # CONFIGURATION 3: Sine Wave Classification
 # CONFIGURATION 4: Checkerboard Pattern
 # CONFIGURATION 5: Quadrant Classification (MULTI-CLASS - 4 outputs!)
+# CONFIGURATION 6: House Price Regression (LINEAR ACTIVATION!)
+# CONFIGURATION 7: Iris Flower Classification (SOFTMAX + CATEGORICAL CE!)
 
 
 ############################################################################################################
 # CONFIGURATION 1: RGB Red Color Classification
 ############################################################################################################
-model_file = os.path.join(os.path.dirname(__file__), "models", "model_red.json")
-data_file = os.path.join(os.path.dirname(__file__), "data", "color_data.json")
-input_key = "RGB_Values"
-output_key = "Is_Red"
-learning_rate = 0.00001  # Lower LR for fine-tuning
-clip_value = 4
-num_epochs = 300
-num_samples = None
-print("=" * 70)
-print("CONTINUE TRAINING: RGB Red Color Classification")
-print("=" * 70)
+#model_file = os.path.join(os.path.dirname(__file__), "models", "model_red.json")
+#data_file = os.path.join(os.path.dirname(__file__), "data", "color_data.json")
+#input_key = "RGB_Values"
+#output_key = "Is_Red"
+#learning_rate = 0.00001  # Lower LR for fine-tuning
+#clip_value = 4
+#num_epochs = 300
+#num_samples = None
+#print("=" * 70)
+#print("CONTINUE TRAINING: RGB Red Color Classification")
+#print("=" * 70)
 
 
 ############################################################################################################
@@ -101,6 +103,40 @@ print("=" * 70)
 
 
 ############################################################################################################
+# # CONFIGURATION 6: House Price Regression (LINEAR ACTIVATION!)
+############################################################################################################
+model_file = os.path.join(os.path.dirname(__file__), "models", "model_linear_regression.json")
+data_file = os.path.join(os.path.dirname(__file__), "data", "linear_regression_data.json")
+input_key = "Input_Values"
+output_key = "Output_Values"
+learning_rate = 0.00001  # Lower LR for fine-tuning
+clip_value = 4
+num_epochs = 100
+num_samples = 800
+cost_func = None
+print("=" * 70)
+print("CONTINUE TRAINING: House Price Regression (LINEAR ACTIVATION)")
+print("=" * 70)
+
+
+############################################################################################################
+# # CONFIGURATION 7: Iris Flower Classification (SOFTMAX + CATEGORICAL CE!)
+############################################################################################################
+# model_file = os.path.join(os.path.dirname(__file__), "models", "model_iris.json")
+# data_file = os.path.join(os.path.dirname(__file__), "data", "iris_data.json")
+# input_key = "Input_Values"
+# output_key = "Output_Values"
+# learning_rate = 0.0001  # Lower LR for fine-tuning
+# clip_value = 4
+# num_epochs = 100
+#num_samples = None
+#cost_function = 'categorical_crossentropy'  # REQUIRED for softmax multi-class!
+# print("=" * 70)
+# print("CONTINUE TRAINING: Iris Flower Classification (SOFTMAX + CATEGORICAL CE)")
+# print("=" * 70)
+
+
+############################################################################################################
 # CONTINUE TRAINING CODE
 ############################################################################################################
 
@@ -137,7 +173,7 @@ print()
 
 # Create a Training object with LOWER learning rate for fine-tuning
 # Using a lower learning rate prevents the model from "forgetting" what it already learned
-training = Training(neural_net, learning_rate=learning_rate, clip_value=clip_value)
+training = Training(neural_net, learning_rate=learning_rate, clip_value=clip_value, cost_function=cost_func)
 
 # Continue training
 training.train(input_data, target_data, epochs=num_epochs, samples_per_epoch=num_samples)

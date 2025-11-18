@@ -9,7 +9,7 @@ from neural_network import NeuralNet
 
 ############################################################################################################
 # CHOOSE WHICH MODEL TO TEST:
-# Uncomment ONE of the 5 configurations below
+# Uncomment ONE of the 7 configurations below
 ############################################################################################################
 
 # CONFIGURATION 1: RGB Red Color Classification (Original)
@@ -17,6 +17,8 @@ from neural_network import NeuralNet
 # CONFIGURATION 3: Sine Wave Classification
 # CONFIGURATION 4: Checkerboard Pattern
 # CONFIGURATION 5: Quadrant Classification (MULTI-CLASS - 4 outputs!)
+# CONFIGURATION 6: House Price Regression (LINEAR - NOTE: Requires different evaluation!)
+# CONFIGURATION 7: Iris Flower Classification (SOFTMAX + CATEGORICAL CE!)
 
 
 ############################################################################################################
@@ -86,6 +88,39 @@ print("=" * 70)
 #class_names = ["Q1 (x>0,y>0)", "Q2 (x<0,y>0)", "Q3 (x<0,y<0)", "Q4 (x>0,y<0)"]
 #print("=" * 70)
 #print("TESTING: Quadrant Classification (MULTI-CLASS)")
+#print("=" * 70)
+
+
+############################################################################################################
+# # CONFIGURATION 6: House Price Regression (LINEAR ACTIVATION!)
+############################################################################################################
+# # NOTE: This configuration requires REGRESSION evaluation, not classification!
+# # The code below uses argmax for classification - it won't work correctly for regression.
+# # For regression, you should calculate MAE/MSE/R² instead of accuracy/confusion matrix.
+# # TODO: Add separate regression evaluation code or modify this file to handle both cases.
+#model_file = os.path.join(os.path.dirname(__file__), "models", "model_linear_regression.json")
+#data_file = os.path.join(os.path.dirname(__file__), "data", "linear_regression_data.json")
+#input_key = "Input_Values"
+#output_key = "Output_Values"
+#num_classes = 1  # Regression - single output value
+#class_names = ["Price"]  # Not really applicable for regression
+#print("=" * 70)
+#print("TESTING: House Price Regression (LINEAR ACTIVATION)")
+#print("WARNING: Classification evaluation metrics below are NOT appropriate for regression!")
+#print("=" * 70)
+
+
+############################################################################################################
+# # CONFIGURATION 7: Iris Flower Classification (SOFTMAX + CATEGORICAL CE!)
+############################################################################################################
+#model_file = os.path.join(os.path.dirname(__file__), "models", "model_iris.json")
+#data_file = os.path.join(os.path.dirname(__file__), "data", "iris_data.json")
+#input_key = "Input_Values"
+#output_key = "Output_Values"
+#num_classes = 3  # MULTI-CLASS!
+#class_names = ["Setosa", "Versicolor", "Virginica"]
+#print("=" * 70)
+#print("TESTING: Iris Flower Classification (SOFTMAX + CATEGORICAL CE)")
 #print("=" * 70)
 
 

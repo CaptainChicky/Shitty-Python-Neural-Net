@@ -1,6 +1,4 @@
 import numpy as np
-from layer import Layer
-from neural_network import NeuralNet
 
 class Training:
     
@@ -14,7 +12,7 @@ class Training:
         self.neural_net = neural_net
         self.learning_rate = learning_rate
         self.clip_value = clip_value
-        self.cost_function = cost_function
+        self.cost_function = cost_function if cost_function is not None else 'mse'
 
 
     # These are our cost functions and friends

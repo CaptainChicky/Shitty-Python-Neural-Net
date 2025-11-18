@@ -8,18 +8,21 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 from layer import Layer
 from neural_network import NeuralNet
 from training import Training
+from activation_functions import ActivationFunction
 
 
 ############################################################################################################
 # CHOOSE WHICH PROBLEM TO TRAIN:
-# Uncomment ONE of the 5 configurations below
+# Uncomment ONE of the 7 configurations below
 ############################################################################################################
-
+ 
 # CONFIGURATION 1: RGB Red Color Classification (Original)
 # CONFIGURATION 2: XOR Problem (Classic)
 # CONFIGURATION 3: Sine Wave Classification
 # CONFIGURATION 4: Checkerboard Pattern
 # CONFIGURATION 5: Quadrant Classification (MULTI-CLASS - 4 outputs!)
+# CONFIGURATION 6: House Price Regression (LINEAR ACTIVATION!)
+# CONFIGURATION 7: Iris Flower Classification (SOFTMAX + CATEGORICAL CE!)
 
 
 ############################################################################################################
@@ -30,27 +33,27 @@ from training import Training
 # Output: 2 neurons (red vs not-red)
 # Architecture: 3 → 10 → 5 → 2
 
-neural_net = NeuralNet()
-input_layer = Layer(previousLayer_size=3, layer_size=3, layer_type='input')
-hidden_layer1 = Layer(previousLayer_size=3, layer_size=10, layer_type='hidden', weight_init='normal', weight_init_params={'std': 0.01})
-hidden_layer2 = Layer(previousLayer_size=10, layer_size=5, layer_type='hidden', weight_init='normal', weight_init_params={'std': 0.01})
-output_layer = Layer(previousLayer_size=5, layer_size=2, layer_type='output')
-neural_net.add_layer(input_layer)
-neural_net.add_layer(hidden_layer1)
-neural_net.add_layer(hidden_layer2)
-neural_net.add_layer(output_layer)
-
-data_file = os.path.join(os.path.dirname(__file__), "data", "color_data.json")
-input_key = "RGB_Values"
-output_key = "Is_Red"
-learning_rate = 0.0001
-num_epochs = 500
-num_samples = 600
-save_file = os.path.join(os.path.dirname(__file__), "models", "model_red.json")
-print("=" * 70)
-print("TRAINING: RGB Red Color Classification")
-print("Architecture: 3 → 10 → 5 → 2")
-print("=" * 70)
+#neural_net = NeuralNet()
+#input_layer = Layer(previousLayer_size=3, layer_size=3, layer_type='input')
+#hidden_layer1 = Layer(previousLayer_size=3, layer_size=10, layer_type='hidden', weight_init='normal', weight_init_params={'std': 0.01})
+#hidden_layer2 = Layer(previousLayer_size=10, layer_size=5, layer_type='hidden', weight_init='normal', weight_init_params={'std': 0.01})
+#output_layer = Layer(previousLayer_size=5, layer_size=2, layer_type='output')
+#neural_net.add_layer(input_layer)
+#neural_net.add_layer(hidden_layer1)
+#neural_net.add_layer(hidden_layer2)
+#neural_net.add_layer(output_layer)
+#
+#data_file = os.path.join(os.path.dirname(__file__), "data", "color_data.json")
+#input_key = "RGB_Values"
+#output_key = "Is_Red"
+#learning_rate = 0.0001
+#num_epochs = 500
+#num_samples = 600
+#save_file = os.path.join(os.path.dirname(__file__), "models", "model_red.json")
+#print("=" * 70)
+#print("TRAINING: RGB Red Color Classification")
+#print("Architecture: 3 → 10 → 5 → 2")
+#print("=" * 70)
 
 
 ############################################################################################################
@@ -179,6 +182,75 @@ print("=" * 70)
 #print("Output: One-hot [Q1, Q2, Q3, Q4]")
 #print("=" * 70)
 
+############################################################################################################
+# CONFIGURATION 6: House Price Regression (LINEAR ACTIVATION!)
+############################################################################################################
+# Task: Predict house prices based on features (regression with unbounded outputs)
+# Input: 3 neurons (square footage, bedrooms, age - all normalized 0-1)
+# Output: 1 neuron (price in $1000s - UNBOUNDED!)
+# Architecture: 3 → 10 → 8 → 1 (NOTE: Output uses LINEAR activation!)
+
+neural_net = NeuralNet()
+input_layer = Layer(previousLayer_size=3, layer_size=3, layer_type='input')
+hidden_layer1 = Layer(previousLayer_size=3, layer_size=10, layer_type='hidden')
+hidden_layer2 = Layer(previousLayer_size=10, layer_size=8, layer_type='hidden')
+output_layer = Layer(previousLayer_size=8, layer_size=1, layer_type='output',
+                    activation_func=ActivationFunction.linear)  # LINEAR for unbounded regression!
+neural_net.add_layer(input_layer)
+neural_net.add_layer(hidden_layer1)
+neural_net.add_layer(hidden_layer2)
+neural_net.add_layer(output_layer)
+
+data_file = os.path.join(os.path.dirname(__file__), "data", "linear_regression_data.json")
+input_key = "Input_Values"
+output_key = "Output_Values"
+learning_rate = 0.0001
+num_epochs = 1000
+num_samples = 600
+cost_func = None
+save_file = os.path.join(os.path.dirname(__file__), "models", "model_linear_regression.json")
+print("=" * 70)
+print("TRAINING: House Price Regression (LINEAR ACTIVATION)")
+print("Architecture: 3 → 10 → 8 → 1")
+print("Task: Predict house prices (unbounded regression)")
+print("Output: Linear activation (no bounds)")
+print("=" * 70)
+
+
+############################################################################################################
+# CONFIGURATION 7: Iris Flower Classification (SOFTMAX + CATEGORICAL CE!)
+############################################################################################################
+# Task: Classify iris flowers into 3 species (multi-class classification)
+# Input: 4 neurons (sepal length, sepal width, petal length, petal width)
+# Output: 3 neurons (Setosa, Versicolor, Virginica - ONE-HOT ENCODED!)
+# Architecture: 4 → 12 → 8 → 3 (NOTE: Output uses SOFTMAX activation!)
+
+#neural_net = NeuralNet()
+#input_layer = Layer(previousLayer_size=4, layer_size=4, layer_type='input')
+#hidden_layer1 = Layer(previousLayer_size=4, layer_size=12, layer_type='hidden')
+#hidden_layer2 = Layer(previousLayer_size=12, layer_size=8, layer_type='hidden')
+#output_layer = Layer(previousLayer_size=8, layer_size=3, layer_type='output',
+#                    activation_func=ActivationFunction.softmax)  # SOFTMAX for multi-class!
+#neural_net.add_layer(input_layer)
+#neural_net.add_layer(hidden_layer1)
+#neural_net.add_layer(hidden_layer2)
+#neural_net.add_layer(output_layer)
+#
+#data_file = os.path.join(os.path.dirname(__file__), "data", "iris_data.json")
+#input_key = "Input_Values"
+#output_key = "Output_Values"
+#learning_rate = 0.001
+#num_epochs = 1000
+#cost_function = 'categorical_crossentropy'  # REQUIRED for softmax multi-class!
+#save_file = os.path.join(os.path.dirname(__file__), "models", "model_iris.json")
+#print("=" * 70)
+#print("TRAINING: Iris Flower Classification (SOFTMAX + CATEGORICAL CE)")
+#print("Architecture: 4 → 12 → 8 → 3")
+#print("Task: 3-class classification (Setosa, Versicolor, Virginica)")
+#print("Output: Softmax activation + one-hot encoding")
+#print("Cost Function: Categorical Cross-Entropy")
+#print("=" * 70)
+
 
 ############################################################################################################
 # TRAINING CODE (Same for all configurations)
@@ -197,7 +269,7 @@ print(f"Epochs: {num_epochs}")
 print()
 
 # Create a Training object
-training = Training(neural_net, learning_rate=learning_rate, clip_value=5)
+training = Training(neural_net, learning_rate=learning_rate, clip_value=5, cost_function=cost_func)
 
 # Train the neural network
 training.train(input_data, target_data, epochs=num_epochs, samples_per_epoch=num_samples)
