@@ -156,6 +156,11 @@ class Layer:
     def set_activation_func(self, activation_func):
         self.activation_func = activation_func
 
+        # Automatically get the derivative function based on the activation function's title
+        # This is necessary when loading models from JSON
+        derivative_title = self.activation_func.title + "_derivative"
+        self.activation_func.derivative = ActivationFunction.get_activation_function(derivative_title)
+
     # Compute the output of this layer given the input data
     def compute_propogation(self, input_data):
 

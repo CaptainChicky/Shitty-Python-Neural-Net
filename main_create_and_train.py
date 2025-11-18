@@ -190,31 +190,31 @@ from activation_functions import ActivationFunction
 # Output: 1 neuron (price in $1000s - UNBOUNDED!)
 # Architecture: 3 → 10 → 8 → 1 (NOTE: Output uses LINEAR activation!)
 
-neural_net = NeuralNet()
-input_layer = Layer(previousLayer_size=3, layer_size=3, layer_type='input')
-hidden_layer1 = Layer(previousLayer_size=3, layer_size=10, layer_type='hidden')
-hidden_layer2 = Layer(previousLayer_size=10, layer_size=8, layer_type='hidden')
-output_layer = Layer(previousLayer_size=8, layer_size=1, layer_type='output',
-                    activation_func=ActivationFunction.linear)  # LINEAR for unbounded regression!
-neural_net.add_layer(input_layer)
-neural_net.add_layer(hidden_layer1)
-neural_net.add_layer(hidden_layer2)
-neural_net.add_layer(output_layer)
-
-data_file = os.path.join(os.path.dirname(__file__), "data", "linear_regression_data.json")
-input_key = "Input_Values"
-output_key = "Output_Values"
-learning_rate = 0.0001
-num_epochs = 1000
-num_samples = 600
-cost_func = None
-save_file = os.path.join(os.path.dirname(__file__), "models", "model_linear_regression.json")
-print("=" * 70)
-print("TRAINING: House Price Regression (LINEAR ACTIVATION)")
-print("Architecture: 3 → 10 → 8 → 1")
-print("Task: Predict house prices (unbounded regression)")
-print("Output: Linear activation (no bounds)")
-print("=" * 70)
+#neural_net = NeuralNet()
+#input_layer = Layer(previousLayer_size=3, layer_size=3, layer_type='input')
+#hidden_layer1 = Layer(previousLayer_size=3, layer_size=10, layer_type='hidden')
+#hidden_layer2 = Layer(previousLayer_size=10, layer_size=8, layer_type='hidden')
+#output_layer = Layer(previousLayer_size=8, layer_size=1, layer_type='output',
+#                    activation_func=ActivationFunction.linear)  # LINEAR for unbounded regression!
+#neural_net.add_layer(input_layer)
+#neural_net.add_layer(hidden_layer1)
+#neural_net.add_layer(hidden_layer2)
+#neural_net.add_layer(output_layer)
+#
+#data_file = os.path.join(os.path.dirname(__file__), "data", "linear_regression_data.json")
+#input_key = "Input_Values"
+#output_key = "Output_Values"
+#learning_rate = 0.001
+#num_epochs = 1000
+#num_samples = 700
+#cost_func = None
+#save_file = os.path.join(os.path.dirname(__file__), "models", "model_linear_regression.json")
+#print("=" * 70)
+#print("TRAINING: House Price Regression (LINEAR ACTIVATION)")
+#print("Architecture: 3 → 10 → 8 → 1")
+#print("Task: Predict house prices (unbounded regression)")
+#print("Output: Linear activation (no bounds)")
+#print("=" * 70)
 
 
 ############################################################################################################
@@ -225,31 +225,32 @@ print("=" * 70)
 # Output: 3 neurons (Setosa, Versicolor, Virginica - ONE-HOT ENCODED!)
 # Architecture: 4 → 12 → 8 → 3 (NOTE: Output uses SOFTMAX activation!)
 
-#neural_net = NeuralNet()
-#input_layer = Layer(previousLayer_size=4, layer_size=4, layer_type='input')
-#hidden_layer1 = Layer(previousLayer_size=4, layer_size=12, layer_type='hidden')
-#hidden_layer2 = Layer(previousLayer_size=12, layer_size=8, layer_type='hidden')
-#output_layer = Layer(previousLayer_size=8, layer_size=3, layer_type='output',
-#                    activation_func=ActivationFunction.softmax)  # SOFTMAX for multi-class!
-#neural_net.add_layer(input_layer)
-#neural_net.add_layer(hidden_layer1)
-#neural_net.add_layer(hidden_layer2)
-#neural_net.add_layer(output_layer)
-#
-#data_file = os.path.join(os.path.dirname(__file__), "data", "iris_data.json")
-#input_key = "Input_Values"
-#output_key = "Output_Values"
-#learning_rate = 0.001
-#num_epochs = 1000
-#cost_function = 'categorical_crossentropy'  # REQUIRED for softmax multi-class!
-#save_file = os.path.join(os.path.dirname(__file__), "models", "model_iris.json")
-#print("=" * 70)
-#print("TRAINING: Iris Flower Classification (SOFTMAX + CATEGORICAL CE)")
-#print("Architecture: 4 → 12 → 8 → 3")
-#print("Task: 3-class classification (Setosa, Versicolor, Virginica)")
-#print("Output: Softmax activation + one-hot encoding")
-#print("Cost Function: Categorical Cross-Entropy")
-#print("=" * 70)
+neural_net = NeuralNet()
+input_layer = Layer(previousLayer_size=4, layer_size=4, layer_type='input')
+hidden_layer1 = Layer(previousLayer_size=4, layer_size=12, layer_type='hidden')
+hidden_layer2 = Layer(previousLayer_size=12, layer_size=8, layer_type='hidden')
+output_layer = Layer(previousLayer_size=8, layer_size=3, layer_type='output',
+                    activation_func=ActivationFunction.softmax)  # SOFTMAX for multi-class!
+neural_net.add_layer(input_layer)
+neural_net.add_layer(hidden_layer1)
+neural_net.add_layer(hidden_layer2)
+neural_net.add_layer(output_layer)
+
+data_file = os.path.join(os.path.dirname(__file__), "data", "iris_data.json")
+input_key = "Input_Values"
+output_key = "Output_Values"
+learning_rate = 0.001
+num_epochs = 1000
+num_samples = 700
+cost_func = 'categorical_crossentropy' # REQUIRED for softmax
+save_file = os.path.join(os.path.dirname(__file__), "models", "model_iris.json")
+print("=" * 70)
+print("TRAINING: Iris Flower Classification (SOFTMAX + CATEGORICAL CE)")
+print("Architecture: 4 → 12 → 8 → 3")
+print("Task: 3-class classification (Setosa, Versicolor, Virginica)")
+print("Output: Softmax activation + one-hot encoding")
+print("Cost Function: Categorical Cross-Entropy")
+print("=" * 70)
 
 
 ############################################################################################################

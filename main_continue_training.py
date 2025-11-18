@@ -105,35 +105,35 @@ from training import Training
 ############################################################################################################
 # # CONFIGURATION 6: House Price Regression (LINEAR ACTIVATION!)
 ############################################################################################################
-model_file = os.path.join(os.path.dirname(__file__), "models", "model_linear_regression.json")
-data_file = os.path.join(os.path.dirname(__file__), "data", "linear_regression_data.json")
-input_key = "Input_Values"
-output_key = "Output_Values"
-learning_rate = 0.00001  # Lower LR for fine-tuning
-clip_value = 4
-num_epochs = 100
-num_samples = 800
-cost_func = None
-print("=" * 70)
-print("CONTINUE TRAINING: House Price Regression (LINEAR ACTIVATION)")
-print("=" * 70)
+#model_file = os.path.join(os.path.dirname(__file__), "models", "model_linear_regression.json")
+#data_file = os.path.join(os.path.dirname(__file__), "data", "linear_regression_data.json")
+#input_key = "Input_Values"
+#output_key = "Output_Values"
+#learning_rate = 0.00001  # Lower LR for fine-tuning
+#clip_value = 4
+#num_epochs = 100
+#num_samples = 900
+#cost_func = None
+#print("=" * 70)
+#print("CONTINUE TRAINING: House Price Regression (LINEAR ACTIVATION)")
+#print("=" * 70)
 
 
 ############################################################################################################
 # # CONFIGURATION 7: Iris Flower Classification (SOFTMAX + CATEGORICAL CE!)
 ############################################################################################################
-# model_file = os.path.join(os.path.dirname(__file__), "models", "model_iris.json")
-# data_file = os.path.join(os.path.dirname(__file__), "data", "iris_data.json")
-# input_key = "Input_Values"
-# output_key = "Output_Values"
-# learning_rate = 0.0001  # Lower LR for fine-tuning
-# clip_value = 4
-# num_epochs = 100
-#num_samples = None
-#cost_function = 'categorical_crossentropy'  # REQUIRED for softmax multi-class!
-# print("=" * 70)
-# print("CONTINUE TRAINING: Iris Flower Classification (SOFTMAX + CATEGORICAL CE)")
-# print("=" * 70)
+model_file = os.path.join(os.path.dirname(__file__), "models", "model_iris.json")
+data_file = os.path.join(os.path.dirname(__file__), "data", "iris_data.json")
+input_key = "Input_Values"
+output_key = "Output_Values"
+learning_rate = 0.00001  # Lower LR for fine-tuning
+clip_value = 4
+num_epochs = 100
+num_samples = 850
+cost_func = 'categorical_crossentropy'  # REQUIRED for softmax multi-class!
+print("=" * 70)
+print("CONTINUE TRAINING: Iris Flower Classification (SOFTMAX + CATEGORICAL CE)")
+print("=" * 70)
 
 
 ############################################################################################################
