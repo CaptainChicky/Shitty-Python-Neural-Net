@@ -1,6 +1,7 @@
 import numpy as np
 import inspect
 from activation_functions import ActivationFunction
+from weight_initializers import WeightInitializer, BiasInitializer
 
 # TODO:
 # Add support for different activation functions that you can set customly
@@ -11,7 +12,13 @@ class Layer:
 
     # We're going to use leaky relu by default, but this can change!!!
     # Each "layer" consists of a set of nodes, and connections to the previous layer's nodes
-    def __init__(self, previousLayer_size, layer_size, layer_type, activation_func=ActivationFunction.leaky_relu, activation_params=None):
+    def __init__(self, previousLayer_size, layer_size, layer_type,
+                 activation_func=ActivationFunction.leaky_relu,
+                 activation_params=None,
+                 weight_init='he',
+                 weight_init_params=None,
+                 bias_init='zeros',
+                 bias_init_params=None):
 
         # The layer size is the number of nodes in this layer
         # The previous layer size is the number of nodes in the previous layer
@@ -28,9 +35,9 @@ class Layer:
         # Store activation function parameters (e.g., alpha for leaky_relu, alpha for elu)
         #
         # NOTE: Even though activation functions have default parameters in activation_functions.py
-        # (e.g., leaky_relu has alpha=0.01), we explicitly store those defaults here
-        # This is redundant, BUT it makes saved model JSON files self-documenting
-        # you can see exactly what alpha was used without having to look at the function definition
+        # (e.g., leaky_relu has alpha=0.01), we explicitly store those defaults here.
+        # This is redundant, BUT it makes saved model JSON files self-documenting - you can see
+        # exactly what alpha was used without having to look at the function definition.
         #
         # What happens:
         # - No custom params provided: Automatically extract defaults from function signature using inspect
@@ -60,22 +67,82 @@ class Layer:
             self.activation_func.derivative = ActivationFunction.get_activation_function(derivative_title)
 
         # Initialize the layer's weights
-        # Weights are a 2D array of size (output_size, layer_size)
-        # Each array element in weights correspond to each node's connections to the previous layer's nodes
-        # Weights are initialized randomly using a normal distribution with mean 0 and standard deviation 0.01
-        # Note that we're manually setting a standard deviation of 0.01, because if we use the default 1, we get vanishing gradients
-        std = 0.01  # Desired standard deviation
-        self.weights = np.random.randn(self.layer_size, self.previousLayer_size) * std
-        # Input layer has no effect, so we just set it to 0
-        # We still want to initialize the weights for consistency, but they have no effect and are ignorable basicallly
-        if (self.layer_type == 'input'):
-            self.weights = np.zeros((self.layer_size, self.previousLayer_size))
+        # Weights are a 2D array of size (layer_size, previousLayer_size)
+        # Each row corresponds to one neuron's connections to all neurons in the previous layer
+        #
+        # Weight initialization uses dict notation for parameters (consistent with activation_params)
+        # Examples: weight_init='normal', weight_init_params={'std': 0.02}
+        #           weight_init='xavier', weight_init_params={}
+        # See weight_initializers.py for details on each strategy
+
+        weight_shape = (self.layer_size, self.previousLayer_size)
+
+        # Get the weight initializer function by title
+        weight_init_func = None
+        for func_name in dir(WeightInitializer):
+            func = getattr(WeightInitializer, func_name)
+            if callable(func) and hasattr(func, 'title') and func.title == weight_init:
+                weight_init_func = func
+                break
+
+        if weight_init_func is None:
+            raise ValueError(f"Unknown weight initialization strategy: '{weight_init}'")
+
+        # Extract default parameters from function signature if not provided
+        if weight_init_params is None:
+            sig = inspect.signature(weight_init_func)
+            weight_init_params = {
+                name: param.default
+                for name, param in sig.parameters.items()
+                if param.default != inspect.Parameter.empty and name not in ['shape', 'fan_in', 'fan_out']
+            }
+
+        # Special handling for initializers that need fan_in/fan_out
+        if weight_init == 'xavier' or weight_init == 'uniform_xavier':
+            self.weights = weight_init_func(weight_shape, previousLayer_size, layer_size, **weight_init_params)
+        elif weight_init == 'he':
+            self.weights = weight_init_func(weight_shape, previousLayer_size, **weight_init_params)
+        else:
+            # Normal, uniform, etc.
+            self.weights = weight_init_func(weight_shape, **weight_init_params)
+
+        # Input layer weights are always set to zero (they're not used)
+        if self.layer_type == 'input':
+            self.weights = np.zeros(weight_shape)
 
         # Initialize the layer's biases
-        # Biases are a 1D array of size (output_size)
-        # Each array element in bias correspond to the bias of each node in the layer
-        # Biases are initialized to 0
-        self.biases = np.zeros(self.layer_size)
+        # Biases are a 1D array of size (layer_size)
+        # Each element corresponds to the bias of one neuron in this layer
+        #
+        # Bias initialization uses dict notation for parameters (consistent with activation_params)
+        # Examples: bias_init='zeros', bias_init_params={}
+        #           bias_init='constant', bias_init_params={'value': 0.5}
+        # See weight_initializers.py for details on each strategy
+
+        bias_shape = self.layer_size
+
+        # Get the bias initializer function by title
+        bias_init_func = None
+        for func_name in dir(BiasInitializer):
+            func = getattr(BiasInitializer, func_name)
+            if callable(func) and hasattr(func, 'title') and func.title == bias_init:
+                bias_init_func = func
+                break
+
+        if bias_init_func is None:
+            raise ValueError(f"Unknown bias initialization strategy: '{bias_init}'")
+
+        # Extract default parameters from function signature if not provided
+        if bias_init_params is None:
+            sig = inspect.signature(bias_init_func)
+            bias_init_params = {
+                name: param.default
+                for name, param in sig.parameters.items()
+                if param.default != inspect.Parameter.empty and name != 'shape'
+            }
+
+        # Initialize biases with parameters
+        self.biases = bias_init_func(bias_shape, **bias_init_params)
 
         # Variable to store the weighted input and inputs for this layer
         # This is used in backpropogation (see the training class)
