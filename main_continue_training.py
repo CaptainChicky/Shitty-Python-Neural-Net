@@ -11,7 +11,7 @@ from training import Training
 ############################################################################################################
 # CONFIGURATION SELECTOR - Change this number to select which model to continue training (1-7)
 ############################################################################################################
-CONFIG_TO_RUN = 3
+CONFIG_TO_RUN = 7
 
 ############################################################################################################
 # CONFIGURATION DEFINITIONS
@@ -34,7 +34,7 @@ def get_configuration(config_num):
             'clip_value': 4,
             'num_epochs': 300,
             'num_samples': 900,
-            'cost_function': 'mse', # we initially trained with mae, but we can switch cost functions! Now mse :) 
+            'cost_function': 'mse' # we initially trained with mae, but we can switch cost functions! Now mse :)
             # like we can switch between mse ⟷ mae, but switching to or from a CE is trickly, refer to readme!!
         },
 
@@ -57,11 +57,11 @@ def get_configuration(config_num):
             'data_file': 'sine_data.json',
             'input_key': 'Input_Values',
             'output_key': 'Output_Values',
-            'learning_rate': 0.00005,
+            'learning_rate': 0.00001,
             'clip_value': 4,
             'num_epochs': 500,
             'num_samples': 900,
-            'cost_function': 'binary_crossentropy',
+            'cost_function': 'binary_crossentropy'
         },
 
         4: {
@@ -70,10 +70,10 @@ def get_configuration(config_num):
             'data_file': 'checkerboard_data.json',
             'input_key': 'Input_Values',
             'output_key': 'Output_Values',
-            'learning_rate': 0.0001,
+            'learning_rate': 0.00005,
             'clip_value': 4,
             'num_epochs': 500,
-            'num_samples': 700,
+            'num_samples': 900,
             'cost_function': 'mse',
         },
 
@@ -83,10 +83,10 @@ def get_configuration(config_num):
             'data_file': 'quadrant_data.json',
             'input_key': 'Input_Values',
             'output_key': 'Output_Values',
-            'learning_rate': 0.0002,
+            'learning_rate': 0.0001,
             'clip_value': 4,
             'num_epochs': 300,
-            'num_samples': 700,
+            'num_samples': 900,
             'cost_function': 'mae',
         },
 
@@ -96,10 +96,10 @@ def get_configuration(config_num):
             'data_file': 'linear_regression_data.json',
             'input_key': 'Input_Values',
             'output_key': 'Output_Values',
-            'learning_rate': 0.0005,
+            'learning_rate': 0.0001,
             'clip_value': 4,
             'num_epochs': 300,
-            'num_samples': 800,
+            'num_samples': 900,
             'cost_function': 'mse',
         },
 
@@ -112,7 +112,7 @@ def get_configuration(config_num):
             'learning_rate': 0.0005,
             'clip_value': 4,
             'num_epochs': 300,
-            'num_samples': 800,
+            'num_samples': 900,
             'cost_function': 'categorical_crossentropy',
         },
     }
@@ -169,17 +169,17 @@ print(f"Cost function: {config['cost_function']}")
 print()
 
 # Create a Training object with LOWER learning rate for fine-tuning
-training = Training(neural_net, learning_rate=config['learning_rate'], clip_value=config['clip_value'], cost_function=config['cost_function'])
+# Use model_file as checkpoint to save best version during continue training
+training = Training(neural_net, learning_rate=config['learning_rate'], clip_value=config['clip_value'], cost_function=config['cost_function'], checkpoint_path=model_file)
 
 # Continue training
 training.train(input_data, target_data, epochs=config['num_epochs'], samples_per_epoch=config['num_samples'])
 
-# Save the updated model (overwrites the old one)
-neural_net.save(model_file)
-
+# Best model already saved during training via checkpoint
 print()
 print("=" * 70)
-print(f"Continue-training complete! Updated model saved to {config['model_file']}")
+print(f"Continue-training complete! Best model saved to {config['model_file']}")
+print(f"Best cost achieved: {training.best_cost:.6f}")
 print("=" * 70)
 print()
 print("TIP: Run main_load.py to see if performance improved")

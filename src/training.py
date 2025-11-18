@@ -8,11 +8,14 @@ class Training:
     #
     # cost_function options: 'mse', 'mae', 'binary_crossentropy', 'categorical_crossentropy'
     # See compatibility notes below for which cost function to use with which output activation
-    def __init__(self, neural_net, learning_rate, clip_value, cost_function='mse'):
+    # checkpoint_path: Optional path to save best model during training (None = no checkpointing)
+    def __init__(self, neural_net, learning_rate, clip_value, cost_function='mse', checkpoint_path=None):
         self.neural_net = neural_net
         self.learning_rate = learning_rate
         self.clip_value = clip_value
         self.cost_function = cost_function if cost_function is not None else 'mse'
+        self.checkpoint_path = checkpoint_path
+        self.best_cost = float('inf')  # Track best cost for checkpointing
 
         # Validate cost function and output activation pairing
         # In case someone retarded uses it i guess
@@ -355,8 +358,16 @@ class Training:
             num_samples_used = len(sample_indices)
             avg_cost = total_cost / num_samples_used
 
+            # Checkpoint: Save model if this is the best cost so far
+            if self.checkpoint_path is not None and avg_cost < self.best_cost:
+                self.best_cost = avg_cost
+                self.neural_net.save(self.checkpoint_path)
+                checkpoint_msg = f" - NEW BEST! Saved to {self.checkpoint_path}"
+            else:
+                checkpoint_msg = ""
+
             # Show how many samples were used if using subset training
             if samples_per_epoch is not None and samples_per_epoch < len(input_data):
-                print(f"Epoch {epoch + 1}/{epochs}, Average Cost: {avg_cost} (trained on {num_samples_used}/{len(input_data)} samples)")
+                print(f"Epoch {epoch + 1}/{epochs}, Average Cost: {avg_cost} (trained on {num_samples_used}/{len(input_data)} samples){checkpoint_msg}")
             else:
-                print(f"Epoch {epoch + 1}/{epochs}, Average Cost: {avg_cost}")
+                print(f"Epoch {epoch + 1}/{epochs}, Average Cost: {avg_cost}{checkpoint_msg}")

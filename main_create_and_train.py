@@ -13,7 +13,7 @@ from activation_functions import ActivationFunction
 ############################################################################################################
 # CONFIGURATION SELECTOR - Change this number to select which model to train (1-7)
 ############################################################################################################
-CONFIG_TO_RUN = 3
+CONFIG_TO_RUN = 7
 
 ############################################################################################################
 # CONFIGURATION DEFINITIONS
@@ -125,7 +125,7 @@ def get_configuration(config_num):
             'input_key': 'Input_Values',
             'output_key': 'Output_Values',
             'learning_rate': 0.0001,
-            'num_epochs': 3000,
+            'num_epochs': 2500,
             'num_samples': 800,
             'cost_function': 'binary_crossentropy', # using binCE requires outputs/data to be 0 to 1, not -1 to 1 like I've been doing
             'save_file': 'model_sine.json'
@@ -163,8 +163,8 @@ def get_configuration(config_num):
             'input_key': 'Input_Values',
             'output_key': 'Output_Values',
             'learning_rate': 0.0003,
-            'num_epochs': 5000,
-            'num_samples': 600,
+            'num_epochs': 3000,
+            'num_samples': 700,
             'cost_function': 'mse',
             'save_file': 'model_checkerboard.json'
         },
@@ -195,7 +195,7 @@ def get_configuration(config_num):
             'output_key': 'Output_Values',
             'learning_rate': 0.0005,
             'num_epochs': 1000,
-            'num_samples': 600,
+            'num_samples': 800,
             'cost_function': 'mae',
             'save_file': 'model_quadrant.json'
         },
@@ -229,7 +229,7 @@ def get_configuration(config_num):
             'learning_rate': 0.001,
             'num_epochs': 1000,
             'num_samples': 700,
-            'cost_function': 'mse',
+            'cost_function': 'mae',
             'save_file': 'model_linear_regression.json'
         },
 
@@ -261,7 +261,7 @@ def get_configuration(config_num):
             'output_key': 'Output_Values',
             'learning_rate': 0.001,
             'num_epochs': 1000,
-            'num_samples': 700,
+            'num_samples': 800,
             'cost_function': 'categorical_crossentropy',
             'save_file': 'model_iris.json'
         },
@@ -309,17 +309,16 @@ print(f"Epochs: {config['num_epochs']}")
 print(f"Cost function: {config['cost_function']}")
 print()
 
-# Create a Training object
-training = Training(neural_net, learning_rate=config['learning_rate'], clip_value=5, cost_function=config['cost_function'])
+# Create a Training object with checkpointing (saves best model to save_file)
+save_file_path = os.path.join(os.path.dirname(__file__), "models", config['save_file'])
+training = Training(neural_net, learning_rate=config['learning_rate'], clip_value=5, cost_function=config['cost_function'], checkpoint_path=save_file_path)
 
 # Train the neural network
 training.train(input_data, target_data, epochs=config['num_epochs'], samples_per_epoch=config['num_samples'])
 
-# Save the neural net
-save_file = os.path.join(os.path.dirname(__file__), "models", config['save_file'])
-neural_net.save(save_file)
-
+# Best model already saved during training via checkpoint
 print()
 print("=" * 70)
-print(f"Training complete! Model saved to {config['save_file']}")
+print(f"Training complete! Best model saved to {config['save_file']}")
+print(f"Best cost achieved: {training.best_cost:.6f}")
 print("=" * 70)
