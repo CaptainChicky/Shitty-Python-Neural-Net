@@ -5,8 +5,8 @@ I don't plan to update this in the forseeable future. Pull requests/issues welco
 
 # Todo
 1. ~~Make the someActivationFunction.derivative thing work instead of manually setting it in layers~~ ✅ DONE - now automatically detects and sets derivatives
-2. Instead of MSE cost, use cross entropy
-3. Perhaps instead of tanh as the output layer activation function, use softmax, or maybe even sigmoid
+2. ~~Instead of MSE cost, use cross entropy~~ ✅ DONE - added cost_function parameter with MSE, MAE, Binary Cross-Entropy, and Categorical Cross-Entropy support
+3. ~~Perhaps instead of tanh as the output layer activation function, use softmax, or maybe even sigmoid~~ ✅ DONE - output activation is no longer hardcoded, defaults to tanh but can be overridden with softmax, sigmoid, or any activation
 4. ~~Allow the training to choose a certain subset of the total data to train with for a single epoch~~ ✅ DONE - added `samples_per_epoch` parameter to randomly sample a subset each epoch
 5. ~~Optimize double forward propagation in training~~ ✅ DONE - backprop now returns both gradients and predictions
 6. ~~Allow custom alpha values for leaky relu (currently hardcoded to 0.01)~~ ✅ DONE - now supports activation_params dict for all parametric activations, and weight_init_params/bias_init_params for initializers
@@ -96,10 +96,12 @@ Currently, the network is being trained to recongnize if a given RGB color tripl
 # Activation Functions Guide
  
 ## Quick Summary
- 
+
 - **Input layers:** No activation (just passes data through)
-- **Hidden layers:** Leaky ReLU (default, alpha=0.01) - alternatives: ReLU, ELU, Sigmoid, Tanh
-- **Output layers:** Tanh (hardcoded) - alternatives: Sigmoid, Softmax (not implemented yet)
+- **Hidden layers:** Leaky ReLU (default, alpha=0.01) - alternatives: ReLU, ELU
+  - Note: Sigmoid/Tanh can be used but suffer from vanishing gradients in deep networks
+- **Output layers:** Tanh (default) - alternatives: Sigmoid (binary classification), Softmax (multi-class classification)
+  - For regression: Linear activation (identity function) is standard but NOT currently implemented in this codebase
  
 ## Available Activation Functions
  
@@ -207,19 +209,44 @@ hidden_layer = Layer(10, 5, 'hidden',
  
 ### Output Layers
 ```python
-output_layer = Layer(5, 2, 'output')  # Always uses Tanh regardless of what you specify
+# Default: uses Tanh
+output_layer = Layer(5, 2, 'output')
+
+# Override with Sigmoid for binary classification
+output_layer = Layer(5, 2, 'output', activation_func=ActivationFunction.sigmoid)
+
+# Override with Softmax for multi-class classification
+output_layer = Layer(5, 4, 'output', activation_func=ActivationFunction.softmax)
 ```
- 
-**Current behavior:**
-- **Hardcoded to Tanh** for all output layers
-- **Why:** Our training data uses outputs in [-1, 1] range (e.g., `[1, -1]` for red, `[-1, 1]` for not-red)
-- **Parameters:** Automatically set to empty dict (tanh has no parameters)
- 
-**Future alternatives (not implemented yet):**
-- **Sigmoid:** For binary classification with 0/1 outputs instead of -1/1
-- **Softmax:** For multi-class classification with probability distributions (this is standard for modern networks)
-  - Example: Instead of `[1, -1, -1, -1]` for quadrant 1, softmax would output `[0.97, 0.01, 0.01, 0.01]` (probabilities that sum to 1)
-  - Would require changing cost function from MSE to cross-entropy loss (see TODO #2)
+
+**Default behavior:**
+- **Defaults to Tanh** but can be overridden
+- **Why Tanh default:** Our training data uses outputs in [-1, 1] range (e.g., `[1, -1]` for red, `[-1, 1]` for not-red)
+- **Full flexibility:** You can now use any activation function for output layers!
+
+**Available alternatives:**
+- **Sigmoid:** For binary classification with 0/1 outputs
+  - Range: [0, 1]
+  - Use with: Binary Cross-Entropy loss
+  - Data format: `[1, 0]` for class A, `[0, 1]` for class B
+- **Softmax:** For multi-class classification with probability distributions
+  - Range: [0, 1] with outputs summing to 1
+  - Use with: Categorical Cross-Entropy loss (REQUIRED - see Cost Functions Guide)
+  - Data format: One-hot encoded like `[1, 0, 0, 0]` for class 1
+  - Example: Instead of `[1, -1, -1, -1]` for quadrant 1, softmax would output `[0.97, 0.01, 0.01, 0.01]` (probabilities)
+- **Tanh:** For regression or classification with [-1, 1] data
+  - Range: [-1, 1]
+  - Use with: MSE or MAE loss
+  - Data format: `[1, -1]` for class A, `[-1, 1]` for class B
+
+**For Regression (not currently implemented):**
+- **Linear activation (identity function):** `f(x) = x`
+  - No transformation applied to weighted input
+  - Allows unbounded outputs (e.g., predicting house prices $100k-$1M directly)
+  - Derivative: `f'(x) = 1` (gradient passes through unchanged)
+  - Use with: MSE or MAE loss
+  - Example: Predicting continuous values like temperature, price, distance
+  - Not implemented in this codebase - would need to add an identity activation function
  
 ## Mix and Match Example
  
@@ -422,7 +449,252 @@ neural_net.add_layer(Layer(10, 5, 'hidden',
                            bias_init='constant',
                            bias_init_params={'value': 0.1}))
 
-# Output layer (always uses Tanh activation)
+# Output layer (defaults to Tanh activation, but can be overridden)
 neural_net.add_layer(Layer(5, 2, 'output'))
 ```
+
+-----
+# Cost Functions Guide
+
+## Quick Summary
+
+**Default:** MSE (Mean Squared Error) - works with any output activation
+
+**Available cost functions:**
+- `'mse'` - Mean Squared Error (default)
+- `'mae'` - Mean Absolute Error
+- `'binary_crossentropy'` - Binary Cross-Entropy (for binary classification)
+- `'categorical_crossentropy'` - Categorical Cross-Entropy (for multi-class classification)
+
+## How to Use
+
+```python
+# Create training object with chosen cost function
+training = Training(neural_net,
+                   learning_rate=0.001,
+                   clip_value=1,
+                   cost_function='mse')  # Change this parameter
+
+# Train as normal
+training.train(input_data, target_data, epochs=500)
+```
+
+## Available Cost Functions
+
+### Mean Squared Error (MSE) - Default
+```python
+training = Training(neural_net, learning_rate=0.001, clip_value=1, cost_function='mse')
+```
+- **Formula:** `0.5 * (predicted - target)²`
+- **When to use:** General-purpose, works with any output activation and data range
+- **Works with:** Tanh [-1, 1], Sigmoid [0, 1], Softmax, or any activation
+- **Data format:** Any range (e.g., [-1, 1] or [0, 1])
+- **Pros:** Smooth gradients, penalizes large errors more heavily
+- **Cons:** Sensitive to outliers
+
+### Mean Absolute Error (MAE)
+```python
+training = Training(neural_net, learning_rate=0.001, clip_value=1, cost_function='mae')
+```
+- **Formula:** `|predicted - target|`
+- **When to use:** When you want to be less sensitive to outliers than MSE
+- **Works with:** Tanh [-1, 1], Sigmoid [0, 1], Softmax, or any activation
+- **Data format:** Any range (e.g., [-1, 1] or [0, 1])
+- **Pros:** Less sensitive to outliers, more robust
+- **Cons:** Gradient is not smooth at predicted = target
+
+### Binary Cross-Entropy
+```python
+training = Training(neural_net, learning_rate=0.001, clip_value=1, cost_function='binary_crossentropy')
+```
+- **Formula:** `-[target * log(predicted) + (1-target) * log(1-predicted)]`
+- **When to use:** Binary classification (two classes only)
+- **Best with:** Sigmoid output activation [0, 1]
+- **Data format:** Targets should be 0 or 1 (e.g., `[1, 0]` for class A, `[0, 1]` for class B)
+- **Can work with:** Tanh if you adapt data to [-1, 1] range
+- **Pros:** Standard for binary classification, works well with sigmoid
+- **Cons:** Requires specific data format
+
+**Example setup:**
+```python
+neural_net = NeuralNet()
+neural_net.add_layer(Layer(3, 3, 'input'))
+neural_net.add_layer(Layer(3, 10, 'hidden'))
+# Override output to use sigmoid instead of default tanh
+neural_net.add_layer(Layer(10, 2, 'output', activation_func=ActivationFunction.sigmoid))
+
+training = Training(neural_net, learning_rate=0.001, clip_value=1, cost_function='binary_crossentropy')
+```
+
+### Categorical Cross-Entropy
+```python
+training = Training(neural_net, learning_rate=0.001, clip_value=1, cost_function='categorical_crossentropy')
+```
+- **Formula:** `-sum(target * log(predicted))`
+- **When to use:** Multi-class classification (3+ classes)
+- **Best with:** Softmax output activation (probability distribution)
+- **Data format:** Targets should be one-hot encoded (e.g., `[1, 0, 0, 0]` for class 1)
+- **Pros:** Standard for multi-class classification, works perfectly with softmax
+- **Cons:** Requires one-hot encoded targets and softmax output
+
+**Example setup:**
+```python
+neural_net = NeuralNet()
+neural_net.add_layer(Layer(3, 3, 'input'))
+neural_net.add_layer(Layer(3, 10, 'hidden'))
+# Override output to use softmax instead of default tanh
+neural_net.add_layer(Layer(10, 4, 'output', activation_func=ActivationFunction.softmax))
+
+training = Training(neural_net, learning_rate=0.001, clip_value=1, cost_function='categorical_crossentropy')
+```
+
+## Cost Function & Output Activation Compatibility
+
+**IMPORTANT:** This compatibility matrix is for **OUTPUT LAYER** activations only!
+
+### Output Layer Activations (for Classification/Regression)
+
+These activations are designed for output layers:
+- **Tanh** - Default for output, works with [-1, 1] data
+- **Sigmoid** - For binary classification with [0, 1] data
+- **Softmax** - For multi-class classification (probability distributions)
+
+### Hidden Layer Activations (NOT for Output)
+
+These activations are designed for hidden layers and should NOT be used on output layers for classification:
+- **ReLU, Leaky ReLU (default), ELU** - Use in hidden layers only
+- Exception: Can be used for regression output with unbounded targets, but not implemented/tested in this codebase
+
+### Recommended Combinations (What Works Correctly)
+
+| Cost Function | Compatible **Output** Activations | Data Format | Use Case |
+|---------------|----------------------|-------------|----------|
+| **MSE** | Tanh, Sigmoid | Any range | General-purpose, regression, classification with [-1, 1] or [0, 1] data |
+| **MAE** | Tanh, Sigmoid | Any range | General-purpose, robust to outliers |
+| **Binary Cross-Entropy** | **Sigmoid ONLY** | Targets: 0 or 1 | Binary classification (2 classes) |
+| **Categorical Cross-Entropy** | **Softmax ONLY** | Targets: one-hot encoded | Multi-class classification (3+ classes) |
+
+### Detailed Compatibility Matrix (Output Layer Only)
+
+| **Output** Activation | MSE | MAE | Binary CE | Categorical CE | Typical Use |
+|------------|-----|-----|-----------|----------------|-------------|
+| **Tanh** | ✅ Works | ✅ Works | ❌ **WRONG** (negative outputs clipped) | ❌ **WRONG** (negative outputs clipped) | Classification with [-1, 1] data |
+| **Sigmoid** | ✅ Works | ✅ Works | ✅ **RECOMMENDED** | ⚠️ **WRONG** (sum ≠ 1, not a distribution) | Binary classification |
+| **Softmax** | ❌ **WRONG GRADIENTS** | ❌ **WRONG GRADIENTS** | ❌ **WRONG GRADIENTS** | ✅ **REQUIRED** | Multi-class classification |
+
+**Notes:**
+- **ReLU/Leaky ReLU/ELU**: Hidden layer activations only, not shown in this matrix
+- Using ReLU-family on output layers is possible for regression but not recommended/tested for this codebase
+
+**Legend:**
+- ✅ Works correctly
+- ⚠️ Runs but mathematically incorrect
+- ❌ Produces wrong results (may or may not crash)
+
+## Important Notes
+
+### Output Layer Activation Defaults
+- **Output layers now default to Tanh** (outputs in [-1, 1] range)
+- **You can override** by passing `activation_func` parameter
+- **No longer hardcoded** - full flexibility!
+
+```python
+# Default: uses Tanh
+output_layer = Layer(5, 2, 'output')
+
+# Override with Sigmoid for Binary Cross-Entropy
+output_layer = Layer(5, 2, 'output', activation_func=ActivationFunction.sigmoid)
+
+# Override with Softmax for Categorical Cross-Entropy
+output_layer = Layer(5, 4, 'output', activation_func=ActivationFunction.softmax)
+```
+
+### Data Format Requirements
+- **MSE/MAE with Tanh:** Use `[-1, 1]` range (e.g., `[1, -1]` for red, `[-1, 1]` for not-red)
+- **Binary Cross-Entropy with Sigmoid:** Use `[0, 1]` range (e.g., `[1, 0]` for class A, `[0, 1]` for class B)
+- **Categorical Cross-Entropy with Softmax:** Use one-hot encoding (e.g., `[1, 0, 0, 0]` for class 1)
+
+### Testing with Current Data
+The current data generators use `[-1, 1]` format, which works perfectly with:
+- MSE + Tanh (default setup)
+- MAE + Tanh
+
+To test Binary/Categorical Cross-Entropy, you would need to:
+1. Regenerate data in `[0, 1]` or one-hot format
+2. Change output activation to Sigmoid or Softmax
+3. Use the corresponding cost function
+
+### Numerical Stability
+Both cross-entropy cost functions include automatic clipping (epsilon = 1e-15) to prevent `log(0)` errors. This ensures stable training even with extreme predictions.
+
+## Optimized Backpropagation (Special Cases)
+
+### Softmax + Categorical Cross-Entropy (Hardcoded Optimization)
+
+When you use **softmax output activation** with **categorical cross-entropy loss**, the backpropagation automatically detects this combination and uses a **hardcoded optimization**:
+
+```
+gradient = predicted_values - target_values
+```
+
+**Why this is REQUIRED (not just an optimization):**
+- Softmax has a Jacobian matrix derivative (not element-wise like other activations)
+- Cannot use standard element-wise multiplication: `(dCost/dPredicted) * (dPredicted/dZ)`
+- The full Jacobian-vector product simplifies to: `predicted - target`
+- This is a well-known result in deep learning and is numerically stable
+
+**Detection:** Automatic - if `output_layer.activation_func.title == 'softmax'` and `cost_function == 'categorical_crossentropy'`
+
+### All Other Combinations (Element-wise)
+
+For **all other activation + cost function combinations**, backpropagation uses the standard element-wise chain rule:
+
+```
+gradient = (dCost/dPredicted) * (dPredicted/dZ)
+```
+
+This works correctly for element-wise activations like:
+- **Sigmoid** (including sigmoid + binary cross-entropy, which naturally simplifies to `predicted - target` through the multiplication)
+- **Tanh** (with MSE, MAE, or any cost function)
+- **ReLU, Leaky ReLU, ELU** (with any cost function)
+
+**Sigmoid + Binary Cross-Entropy note:**
+- Uses the general element-wise case (no special hardcoded optimization needed)
+- BCE derivative: `(predicted - target) / [predicted × (1 - predicted)]`
+- Sigmoid derivative: `predicted × (1 - predicted)`
+- When multiplied: terms naturally cancel to give `predicted - target`
+
+### Implementation Note
+The softmax + CE special case is implemented in `src/training.py` in the `firstTwoDerivativesOfOutputLayer()` method. The detection is automatic - you don't need to do anything special. Just choose the right cost function and output activation.
+
+### Important Limitations
+
+**CRITICAL: Refer to the Compatibility Matrix above before choosing combinations!**
+
+**Softmax activation is for OUTPUT LAYERS ONLY and MUST use Categorical Cross-Entropy:**
+- **Output layer only:** Softmax is designed for output layers in multi-class classification (technically can be used on hidden layers but serves no purpose)
+- **Must use with Categorical CE:** Due to how softmax derivatives work (Jacobian matrix, not element-wise), the current implementation only supports softmax when paired with categorical cross-entropy
+- Using softmax with MSE, MAE, or Binary CE will **not crash** but produces **incorrect gradients** silently
+- The softmax derivative is a placeholder that returns softmax output, which only works with the hardcoded CE special case
+- Training will appear to work but the network won't learn correctly
+- This isn't a practical limitation - softmax is designed for probability distributions, and CE is the natural loss for that use case
+
+**Binary Cross-Entropy MUST ONLY be used with Sigmoid:**
+- Binary CE is designed for sigmoid activations (outputs in [0, 1] range)
+- **Using with Tanh:** Negative outputs get clipped to near-zero positive values, producing incorrect costs and gradients (won't crash due to epsilon clipping)
+- **Using with ReLU/Leaky ReLU/ELU:** Unbounded outputs (can be > 1 or < 0) break the probability interpretation
+- **Using with Softmax:** Will produce incorrect gradients (use Categorical CE instead)
+
+**Categorical Cross-Entropy MUST ONLY be used with Softmax:**
+- Categorical CE is designed for softmax (probability distributions that sum to 1)
+- **Using with Sigmoid:** Runs but mathematically wrong - sigmoid outputs are independent probabilities, not a distribution (sum ≠ 1)
+- **Using with Tanh:** Negative outputs get clipped, producing incorrect results
+- **Using with ReLU/Leaky ReLU/ELU:** Unbounded outputs break the probability interpretation
+
+**Safe output layer combinations (see Compatibility Matrix for full details):**
+- **Sigmoid (output):** MSE, MAE, or Binary Cross-Entropy
+- **Tanh (output):** MSE or MAE only
+- **Softmax (output only):** Categorical Cross-Entropy only
+- **ReLU, Leaky ReLU, ELU:** Hidden layers only (not for classification output)
+
 -----

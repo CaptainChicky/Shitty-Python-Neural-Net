@@ -3,17 +3,12 @@ import inspect
 from activation_functions import ActivationFunction
 from weight_initializers import WeightInitializer, BiasInitializer
 
-# TODO:
-# Add support for different activation functions that you can set customly
-# Be able to set the .derivative attribute of the activation function in the activation function class (see that file)
-# Implement softmax activation function for the output layer
-
 class Layer:
 
-    # We're going to use leaky relu by default, but this can change!!!
+    # We're going to use leaky relu by default for hidden layers, tanh for output layers
     # Each "layer" consists of a set of nodes, and connections to the previous layer's nodes
     def __init__(self, previousLayer_size, layer_size, layer_type,
-                 activation_func=ActivationFunction.leaky_relu,
+                 activation_func=None,
                  activation_params=None,
                  weight_init='he',
                  weight_init_params=None,
@@ -27,6 +22,16 @@ class Layer:
 
         # The layer type is either input, hidden, or output
         self.layer_type = layer_type
+
+        # Set default activation function based on layer type if not explicitly provided
+        # Output layers default to tanh (for -1 to 1 output range)
+        # Hidden layers default to leaky relu
+        # Users can override by passing activation_func parameter
+        if activation_func is None:
+            if layer_type == 'output':
+                activation_func = ActivationFunction.tanh
+            else:
+                activation_func = ActivationFunction.leaky_relu
 
         # The activation function is the function that is applied to the weighted input for each node
         # We automatically set the derivative based on the activation function's title
@@ -58,13 +63,6 @@ class Layer:
         # Automatically get the derivative function based on the activation function's title
         derivative_title = self.activation_func.title + "_derivative"
         self.activation_func.derivative = ActivationFunction.get_activation_function(derivative_title)
-
-        # We want to normalize the output layer's output to be between -1 and 1, so we use tanh for the output layer
-        if (self.layer_type == 'output'):
-            self.activation_func = ActivationFunction.tanh
-            self.activation_params = {}  # tanh has no parameters
-            derivative_title = self.activation_func.title + "_derivative"
-            self.activation_func.derivative = ActivationFunction.get_activation_function(derivative_title)
 
         # Initialize the layer's weights
         # Weights are a 2D array of size (layer_size, previousLayer_size)

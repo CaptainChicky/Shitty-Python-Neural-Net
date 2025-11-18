@@ -185,7 +185,8 @@ class ActivationFunction:
         """
         return np.where(x > 0, 1, alpha)
 
-    # elu is smoother than leaky relu and can produce negative outputs, pushes mean activations closer to zero and can speed up learning
+    # ELU (Exponential Linear Unit) is smoother than leaky_relu and can produce negative outputs
+    # This helps push mean activations closer to zero, which can speed up learning
     # When x > 0: f(x) = x
     # When x <= 0: f(x) = alpha * (e^x - 1)
     @staticmethod
@@ -222,6 +223,7 @@ class ActivationFunction:
         # When x <= 0: f'(x) = alpha * e^x = f(x) + alpha
         return np.where(x > 0, 1, alpha * np.exp(x))
 
+
     @staticmethod
     @with_title("tanh")
     def tanh(x):
@@ -244,20 +246,20 @@ class ActivationFunction:
         """
         Derivative of tanh activation function.
         Uses the identity: tanh'(x) = 1 - tanh²(x) for numerical stability.
- 
+
         Args:
             x: Input array
- 
+
         Returns:
             Gradient array
         """
         tanh_x = np.tanh(x)
         return 1 - tanh_x ** 2
 
-    # Swish activation (also called silu aka Sigmoid Linear Unit) with configurable alpha
-    # This is a smooth, non-monotonic activation function that can outperform relu
+    # Swish activation (also called SiLU - Sigmoid Linear Unit) with configurable alpha
+    # This is a smooth, non-monotonic activation function that can outperform ReLU
     # When alpha=1: f(x) = x * sigmoid(x) (standard Swish)
-    # Higher alpha makes it more like relu, lower alpha makes it more linear
+    # Higher alpha makes it more like ReLU, lower alpha makes it more linear
     @staticmethod
     @with_title("swish")
     def swish(x, alpha=1.0):
@@ -294,7 +296,7 @@ class ActivationFunction:
         swish_val = x * sigmoid_val
         return swish_val + sigmoid_val * (1 - swish_val)
 
-    # SELU (Scaled Exponential Linear Unit) is a REAL 2-parameter activation function!
+    # SELU (Scaled Exponential Linear Unit) - a REAL 2-parameter activation function!
     # Used in Self-Normalizing Neural Networks (Klambauer et al., 2017)
     # These specific alpha and lambda values ensure self-normalizing properties
     # When x > 0: f(x) = lambda * x
@@ -335,7 +337,7 @@ class ActivationFunction:
         # When x <= 0: f'(x) = scale * alpha * e^x
         return scale * np.where(x > 0, 1, alpha * np.exp(x))
 
-    # GELU (Gaussian Error Linear Unit) is used in BERT, GPT, and many transformer models
+    # GELU (Gaussian Error Linear Unit) - used in BERT, GPT, and many transformer models
     # f(x) = x * Φ(x) where Φ(x) is the CDF of the standard normal distribution
     # We use the tanh approximation: f(x) ≈ 0.5 * x * (1 + tanh(√(2/π) * (x + 0.044715 * x^3)))
     @staticmethod
@@ -378,7 +380,7 @@ class ActivationFunction:
         # Full derivative
         return 0.5 * (1 + tanh_inner) + 0.5 * x * sech2_inner * inner_derivative
 
-    # Mish activation gives smooth, self-regularized non-monotonic activation
+    # Mish activation - smooth, self-regularized non-monotonic activation
     # f(x) = x * tanh(softplus(x)) = x * tanh(ln(1 + e^x))
     # Can outperform ReLU and Swish in some deep learning tasks
     @staticmethod
@@ -423,7 +425,7 @@ class ActivationFunction:
         return tanh_softplus + x * sech2_softplus * sigmoid_x
 
     # Parametric activation with TWO parameters (alpha and beta)
-    # This is just for demonstration, no real things irl use this shit lol
+    # This demonstrates why activation_params uses dict instead of dash notation
     # f(x) = alpha * x  when x > 0
     # f(x) = beta * (e^x - 1)  when x <= 0
     # This combines features of both Leaky ReLU (alpha) and ELU (beta)
@@ -463,7 +465,58 @@ class ActivationFunction:
         # When x <= 0: f'(x) = beta * e^x
         return np.where(x > 0, alpha, beta * np.exp(x))
     
-    
+
+    # Softmax activation - used for multi-class classification
+    # Converts raw scores (logits) into probabilities that sum to 1.0
+    # f(x)_i = e^(x_i) / Σ(e^(x_j)) for all j
+    @staticmethod
+    @with_title("softmax")
+    def softmax(x):
+        """
+        Softmax activation function for multi-class classification.
+        Converts logits into probability distribution (outputs sum to 1.0).
+        Used in output layer for multi-class problems.
+
+        Args:
+            x: Input array (logits)
+
+        Returns:
+            Array of probabilities that sum to 1.0
+        """
+        # Subtract max for numerical stability (avoids overflow)
+        exp_x = np.exp(x - np.max(x))
+        return exp_x / np.sum(exp_x)
+
+    @staticmethod
+    @with_title("softmax_derivative")
+    def softmax_derivative(x):
+        """
+        PLACEHOLDER derivative for softmax - NOT ACTUALLY USED FOR GRADIENT COMPUTATION!
+
+        This function exists only because the architecture expects every activation to have a .derivative attribute.
+        It simply returns the softmax output, but this value is NEVER used for computing gradients.
+
+        ACTUAL GRADIENT COMPUTATION:
+        The real gradient for softmax is computed in training.py via a hardcoded special case:
+        - When softmax + categorical cross-entropy is detected, it uses: gradient = predicted - target
+        - This bypasses the derivative functions entirely
+        - See training.py -> firstTwoDerivativesOfOutputLayer() for the actual implementation
+
+        WHY THIS APPROACH:
+        - Softmax has a Jacobian matrix derivative (not element-wise like other activations)
+        - Cannot use standard element-wise multiplication in backprop
+        - The architecture expects a derivative function, so we provide this placeholder
+
+        Args:
+            x: Input array (weighted input)
+
+        Returns:
+            Softmax output (placeholder, not used for actual gradient computation)
+        """
+        # Return softmax output as a placeholder - never actually used
+        return ActivationFunction.softmax(x)
+
+
     # Function to get the activation function based on its title
     @staticmethod
     def get_activation_function(title):

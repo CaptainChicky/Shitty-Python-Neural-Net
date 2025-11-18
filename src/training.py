@@ -3,9 +3,6 @@ from layer import Layer
 from neural_network import NeuralNet
 
 # TODO:
-# Change the error from MSE to cross-entropy, or at least give the ability to choose
-# Activation function derivative shenanigans (see the activation functions class)
-# Training function is not that efficient, because we're doing forward propagation twice, so optimize this (see that function)
 # Cost function is inefficiently built, because it's built to average out the entire data set, but we're only using it for a single sample
 
 class Training:
@@ -13,53 +10,105 @@ class Training:
     # For the constructor, we're passing in normal things like the net itself, and the learning rate
     # However, we also have a clip value, which is used to prevent the gradient from exploding during backpropagation
     # This sets a hard cap on the gradient, so that it can't be too large (check the update parameters function in this class)
-    def __init__(self, neural_net, learning_rate, clip_value):
+    #
+    # cost_function options: 'mse', 'mae', 'binary_crossentropy', 'categorical_crossentropy'
+    # See compatibility notes below for which cost function to use with which output activation
+    def __init__(self, neural_net, learning_rate, clip_value, cost_function='mse'):
         self.neural_net = neural_net
         self.learning_rate = learning_rate
         self.clip_value = clip_value
+        self.cost_function = cost_function
 
 
     # These are our cost functions and friends
+    #
+    # COST FUNCTION COMPATIBILITY:
+    # - MSE (Mean Squared Error): Works with any output activation (tanh, sigmoid, softmax, etc.)
+    # - MAE (Mean Absolute Error): Works with any output activation
+    # - Binary Cross-Entropy: Best with sigmoid output (0-1 range), can work with tanh if data is [-1, 1]
+    # - Categorical Cross-Entropy: Best with softmax output (probability distribution)
 
-    # This function only calculates the MSE cost for a single node (in the output layer, ideally)
-    # Maybe use this for the cross-entropy cost function? See the TODO above
-    @staticmethod
-    def node_cost(predicted_value, target_value):
-        # The node-wise (each node) cost function computes the squared error between the predicted and target values
-        # We're multiplying by 0.5 to make the derivative of the cost function simpler
-        return 0.5 * (predicted_value - target_value) ** 2
+    # Node-wise cost functions (operate on individual nodes in the output layer)
+    def node_cost(self, predicted_value, target_value):
+        if self.cost_function == 'mse':
+            # Mean Squared Error: 0.5 * (predicted - target)^2
+            # The 0.5 makes the derivative cleaner
+            return 0.5 * (predicted_value - target_value) ** 2
 
-    @staticmethod
-    def node_cost_derivative(predicted_value, target_value):
-        # The derivative of the node-wise cost function is simply the difference between the predicted and target values
-        # We'll be accepting numpy arrays as inputs, so we'll be returning a numpy array as output
-        return predicted_value - target_value 
+        elif self.cost_function == 'mae':
+            # Mean Absolute Error: |predicted - target|
+            return np.abs(predicted_value - target_value)
+
+        elif self.cost_function == 'binary_crossentropy':
+            # Binary Cross-Entropy: -[target * log(predicted) + (1-target) * log(1-predicted)]
+            # Clip predictions to avoid log(0)
+            eps = 1e-15
+            predicted_clipped = np.clip(predicted_value, eps, 1 - eps)
+            return -(target_value * np.log(predicted_clipped) + (1 - target_value) * np.log(1 - predicted_clipped))
+
+        elif self.cost_function == 'categorical_crossentropy':
+            # Categorical Cross-Entropy: -sum(target * log(predicted))
+            # Clip predictions to avoid log(0)
+            eps = 1e-15
+            predicted_clipped = np.clip(predicted_value, eps, 1.0)
+            return -(target_value * np.log(predicted_clipped))
+
+        else:
+            raise ValueError(f"Unknown cost function: '{self.cost_function}'")
+
+    def node_cost_derivative(self, predicted_value, target_value):
+        if self.cost_function == 'mse':
+            # Derivative of MSE: predicted - target
+            return predicted_value - target_value
+
+        elif self.cost_function == 'mae':
+            # Derivative of MAE: sign(predicted - target)
+            # At exactly predicted == target, derivative is technically undefined, so we use 0
+            diff = predicted_value - target_value
+            return np.where(diff == 0, 0, np.sign(diff))
+
+        elif self.cost_function == 'binary_crossentropy':
+            # Derivative of Binary Cross-Entropy: (predicted - target) / [predicted * (1 - predicted)]
+            # When combined with sigmoid activation, this simplifies to just (predicted - target)
+            # For numerical stability, clip predictions
+            eps = 1e-15
+            predicted_clipped = np.clip(predicted_value, eps, 1 - eps)
+            return (predicted_clipped - target_value) / (predicted_clipped * (1 - predicted_clipped))
+
+        elif self.cost_function == 'categorical_crossentropy':
+            # NOTE: This should NEVER be reached in correct usage!
+            # Categorical cross-entropy should ONLY be used with softmax activation,
+            # and softmax + categorical CE uses a hardcoded special case in
+            # firstTwoDerivativesOfOutputLayer() that returns predicted - target directly.
+            # If we reach here, it means categorical CE is being used with a non-softmax
+            # activation (sigmoid, tanh, relu, etc.) which is INCORRECT.
+            raise ValueError(
+                "Categorical cross-entropy should ONLY be used with softmax output activation. "
+                "The derivative is computed via a special case in backpropagation. "
+                "If you're seeing this error, you likely used categorical_crossentropy with "
+                "a non-softmax activation function, which produces incorrect gradients. "
+                "Use 'binary_crossentropy' with sigmoid for binary classification, or "
+                "'softmax' activation with 'categorical_crossentropy' for multi-class classification."
+            )
+
+        else:
+            raise ValueError(f"Unknown cost function: '{self.cost_function}'")
 
     # We want to minimize the cost function, because the cost represents the error of the neural network
     # We only use this function for training transparency, so we can see how the cost changes over time
     # Otherwise, we don't really need this function
-    @staticmethod
-    def cost(predicted_values, target_values):
-        # The cost function is the average of the node-wise cost functions for all nodes and all samples in a training set
-        # predicted_values and target_values are both 2D NUMPY ARRAYS
-        # Each inner array represents the predicted values or target values for a given sample
+    def cost(self, predicted_values, target_values):
+        # The cost function is the average of the node-wise cost functions for all nodes and all samples
+        # For a single sample, predicted_values and target_values are 1D arrays
+        # The node_cost method handles both element-wise (for arrays) and single values
 
-        node_costs = []  # List to store the node-wise costs for each node in each sample
+        # Calculate the node-wise cost
+        node_cost_values = self.node_cost(predicted_values, target_values)
 
-        # Iterate through each sample in the training set
-        for i in range(len(predicted_values)):
-            # Calculate the node-wise cost for the current sample
-            node_cost = Training.node_cost(predicted_values[i], target_values[i])
-            
-            # Add the node-wise cost for the current sample to the list of node-wise costs
-            node_costs.append(node_cost) 
+        # Calculate the total cost by taking the mean of node-wise costs
+        # This works whether we have a single sample (1D array) or multiple samples
+        total_cost = np.mean(node_cost_values)
 
-        # Calculate the total cost by taking the mean of node-wise costs over all nodes and all samples in a given training set
-        # Remember that a single epoch is a single pass through the entire training set, so we're calculating the cost for a single epoch
-        total_cost = np.mean(node_costs)
-
-        # Note that there may be a problem here because in the actual training function where we use this, we're only using it for a single sample
-        # This means we may not need to use the mean then
         return total_cost
 
 
@@ -78,13 +127,32 @@ class Training:
         # Values are queried from top down, so from the top node to the bottom node
         # Numpy can do the multiplication within the arrays for us lmao
 
+        output_layer = self.neural_net.layers[-1]
+
+        # SPECIAL CASE: Softmax + Categorical Cross-Entropy
+        # When softmax activation is combined with categorical cross-entropy loss,
+        # the full derivative (including the Jacobian-vector product) simplifies to: predicted - target
+        # This is mathematically correct because:
+        #   - CE derivative: -target / predicted
+        #   - Softmax Jacobian-vector product: When multiplied with CE derivative, simplifies to: predicted - target
+        # This is a well-known result in deep learning and avoids numerical instability
+        # NOTE: This special case is REQUIRED because softmax has a Jacobian matrix derivative (not element-wise)
+        if (output_layer.activation_func.title == 'softmax' and
+            self.cost_function == 'categorical_crossentropy'):
+            derivatives = predicted_values - target_values
+            return derivatives
+
+        # GENERAL CASE: Element-wise activations (sigmoid, tanh, relu, leaky_relu, elu, etc.)
+        # For all other activation + cost function combinations, use standard chain rule
+        # with element-wise multiplication (Hadamard product)
+        # This includes sigmoid + binary cross-entropy, which naturally simplifies to predicted - target
+
         # The dCost/dPredictedValue term is simply the node cost derivative
         dCost_dPredictedValue = self.node_cost_derivative(predicted_values, target_values)
 
         # The dPredictedValue/dZ term is the derivative of the activation function with the weighted sum of that layer as input
         # We want to find the activation function of that layer, then find the derivative of that function
         # Then we plug in the weighted sum of that node into the derivative of the activation function for all output nodes
-        output_layer = self.neural_net.layers[-1]
         if output_layer.activation_params:
             dPredictedValue_dZ = output_layer.activation_func.derivative(output_layer.weighted_input, **output_layer.activation_params)
         else:
