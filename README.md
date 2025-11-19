@@ -42,6 +42,48 @@ training.train(input_data, target_data, epochs=500, samples_per_epoch=400)
 - Each epoch sees different random samples
 - Faster training per epoch
 
+## Automatic Best Model Checkpointing (NEW!)
+
+**All training scripts now automatically save the best model during training!**
+
+```python
+# Checkpointing is enabled by default in main_create_and_train.py and main_continue_training.py
+# The best model (lowest cost) is automatically saved during training
+
+training = Training(neural_net,
+                   learning_rate=0.001,
+                   clip_value=5,
+                   cost_function='mse',
+                   checkpoint_path='models/model_best.json')  # Auto-saves best here
+
+training.train(input_data, target_data, epochs=5000)
+# Models saved automatically whenever cost improves!
+```
+
+**What you'll see:**
+```
+Epoch 1/5000, Average Cost: 0.543
+Epoch 2/5000, Average Cost: 0.421 - NEW BEST! Saved to models/model_sine.json
+Epoch 3/5000, Average Cost: 0.398 - NEW BEST! Saved to models/model_sine.json
+...
+Epoch 150/5000, Average Cost: 0.082 - NEW BEST! Saved to models/model_sine.json
+Epoch 151/5000, Average Cost: 0.510  ← Cost exploded, but 0.082 is safe!
+...
+Training complete! Best model saved to model_sine.json
+Best cost achieved: 0.082
+```
+
+**Why this is critical:**
+- **Prevents loss from overfitting** - Cost may rise after epoch 500 but you keep the best from epoch 150
+- **Prevents loss from learning rate spikes** - If cost explodes (0.08 → 0.5), you don't lose the good model
+- **No manual intervention needed** - Automatic safety net for long training runs
+
+**To disable checkpointing** (not recommended):
+```python
+training = Training(neural_net, learning_rate=0.001, clip_value=5, cost_function='mse')
+# Omit checkpoint_path parameter - no automatic saving
+```
+
 # Notes
 Numpy is the only dependency.
 
@@ -524,11 +566,34 @@ training = Training(neural_net, learning_rate=0.001, clip_value=1, cost_function
 ```
 - **Formula:** `-[target * log(predicted) + (1-target) * log(1-predicted)]`
 - **When to use:** Binary classification (two classes only)
-- **Best with:** Sigmoid output activation [0, 1]
-- **Data format:** Targets should be 0 or 1 (e.g., `[1, 0]` for class A, `[0, 1]` for class B)
-- **Can work with:** Tanh if you adapt data to [-1, 1] range
+- **REQUIRES:** Sigmoid output activation [0, 1]
+- **Data format:** Targets **MUST** be 0 or 1 (e.g., `[1, 0]` for class A, `[0, 1]` for class B)
 - **Pros:** Standard for binary classification, works well with sigmoid
 - **Cons:** Requires specific data format
+
+**⚠️ CRITICAL: Binary Cross-Entropy Requires [0, 1] Target Data!**
+
+If you use Binary CE with `[-1, 1]` target data (common in this repo), you will get **negative costs** and completely wrong gradients!
+
+```python
+# WRONG - Will produce negative costs and broken training:
+target_data = [[1, -1], [-1, 1], ...]  # [-1, 1] format
+training = Training(net, ..., cost_function='binary_crossentropy')  # ❌ BAD!
+
+# CORRECT - Use [0, 1] format:
+target_data = [[1, 0], [0, 1], ...]  # [0, 1] format
+training = Training(net, ..., cost_function='binary_crossentropy')  # ✅ GOOD!
+
+# OR - Use MSE/MAE with [-1, 1] data instead:
+target_data = [[1, -1], [-1, 1], ...]  # [-1, 1] format is fine
+training = Training(net, ..., cost_function='mse')  # ✅ GOOD!
+```
+
+**Why this matters:**
+- Binary CE formula assumes probabilities (0 to 1 range)
+- Negative targets (-1) cause negative log values → negative cost
+- Gradients point in wrong direction → network learns nothing or diverges
+- **Always check your data format matches your cost function!**
 
 **Example setup:**
 ```python
@@ -538,6 +603,7 @@ neural_net.add_layer(Layer(3, 10, 'hidden'))
 # Override output to use sigmoid instead of default tanh
 neural_net.add_layer(Layer(10, 2, 'output', activation_func=ActivationFunction.sigmoid))
 
+# Make sure your target data is [0, 1] format!
 training = Training(neural_net, learning_rate=0.001, clip_value=1, cost_function='binary_crossentropy')
 ```
 
@@ -686,6 +752,45 @@ This works correctly for element-wise activations like:
 ### Implementation Note
 The softmax + CE special case is implemented in `src/training.py` in the `firstTwoDerivativesOfOutputLayer()` method. The detection is automatic - you don't need to do anything special. Just choose the right cost function and output activation.
 
+### Switching Cost Functions During Training
+
+**You CAN switch cost functions when continuing training from a saved model:**
+
+```python
+# Initial training with MAE
+trainer = Training(net, learning_rate=0.01, clip_value=5, cost_function='mae')
+trainer.train(input_data, target_data, epochs=500)
+net.save('model.json')
+
+# Continue training with MSE
+loaded_net = NeuralNet()
+loaded_net.load('model.json')
+trainer2 = Training(loaded_net, learning_rate=0.01, clip_value=5, cost_function='mse')  # Different!
+trainer2.train(input_data, target_data, epochs=500)
+```
+
+**Why this works:**
+- Cost functions are properties of the `Training` object, not the `NeuralNet`
+- Saved models only contain weights, biases, and architecture - no cost function
+- When you create a new `Training` object, you can choose any compatible cost function
+
+**Restrictions:**
+- The same activation/cost compatibility rules still apply (see Compatibility Matrix)
+- ❌ Can't switch TO binary_crossentropy unless output is sigmoid
+- ❌ Can't switch TO categorical_crossentropy unless output is softmax
+- ❌ Can't switch FROM softmax to anything except categorical_crossentropy
+- ✅ Can freely switch between MSE ⟷ MAE for any activation
+
+**Practical recommendations:**
+- ✅ **MSE ⟷ MAE are switchable** - Both are regression losses with different error metrics, switching makes sense
+- ❌ **Binary CE and Categorical CE - pick one and stick with it** - These are classification losses with different problem framings, switching mid-training doesn't make practical sense
+
+**Practical use case for MSE ⟷ MAE:**
+1. **Start with MAE** (robust to outliers, gets "close enough")
+2. **Switch to MSE** (fine-tunes, penalizes large errors more heavily)
+
+This is a legitimate training strategy - MAE is less sensitive to outliers early on, then MSE polishes the fit.
+
 ### Important Limitations
 
 **CRITICAL: Refer to the Compatibility Matrix above before choosing combinations!**
@@ -714,6 +819,240 @@ The softmax + CE special case is implemented in `src/training.py` in the `firstT
 - **Sigmoid (output):** MSE, MAE, or Binary Cross-Entropy
 - **Tanh (output):** MSE or MAE only
 - **Softmax (output only):** Categorical Cross-Entropy only
+- **Linear (output):** MSE or MAE (for unbounded regression)
 - **ReLU, Leaky ReLU, ELU:** Hidden layers only (not for classification output)
 
+---
+
+# Troubleshooting Guide
+
+## Cost Increases During Training
+
+**"Why does my cost go UP when gradient descent is supposed to minimize it?"**
+
+Cost can increase for several reasons - this is normal and expected in many cases!
+
+### 1. Learning Rate Too High (Most Common)
+
+Gradient descent takes steps that are too large and overshoots the minimum:
+
+```
+Epoch 100: Cost = 0.08  ← At minimum
+Epoch 101: Cost = 0.50  ← Jumped over it!
+```
+
+**Symptoms:**
+- Sharp spike in cost (0.08 → 0.5 in one epoch)
+- Cost oscillates wildly instead of decreasing smoothly
+- Network diverges to NaN or infinity
+
+**Solutions:**
+- Lower learning rate by 10x: `learning_rate=0.0001` instead of `0.001`
+- If continuing training, start with even lower LR: `learning_rate=0.00005`
+- Use checkpointing (enabled by default) to recover the best model
+
+### 2. Overfitting
+
+Network starts memorizing training noise instead of learning real patterns:
+
+```
+Epoch 1-500: Cost decreases to 0.05  ← Learning
+Epoch 501-1000: Cost rises to 0.12   ← Overfitting
+```
+
+**Symptoms:**
+- Gradual rise in cost after reaching a minimum
+- Training cost low but validation cost high
+- Network is too large for the dataset
+
+**Solutions:**
+- Stop training when cost starts rising (checkpointing saves the best model automatically!)
+- Use `samples_per_epoch` for regularization: `train(..., samples_per_epoch=800)`
+- Reduce network size (fewer neurons/layers)
+- The best model is already saved via checkpoint - just use that!
+
+### 3. Stochastic Noise (NORMAL!)
+
+When using `samples_per_epoch`, each epoch trains on different random samples:
+
+```
+Epoch 100: Cost = 0.08  (samples [1, 5, 8, ...])
+Epoch 101: Cost = 0.12  (samples [3, 7, 9, ...]) ← Different samples!
+Epoch 102: Cost = 0.07  (samples [2, 4, 6, ...])
+```
+
+**Symptoms:**
+- Cost bounces around instead of smooth decrease
+- Fluctuations are relatively small (±0.02 to ±0.05)
+- Trend is still generally downward
+
+**This is normal and actually good** - it prevents overfitting! The checkpoint system saves the best model despite the noise.
+
+### 4. Gradient Explosion
+
+Even with clipping, gradients can cause bad updates:
+
+```
+Epoch 200: Cost = 0.08
+Epoch 201: Cost = 5.23  ← Exploded!
+Epoch 202: Cost = NaN   ← Dead network
+```
+
+**Symptoms:**
+- Cost jumps to very large values (> 1.0)
+- Cost becomes NaN or infinity
+- Happens suddenly after stable training
+
+**Solutions:**
+- Tighter gradient clipping: `clip_value=1` instead of `5`
+- Lower learning rate
+- Check that data is normalized (divide by 255 for RGB)
+- Restart training with better hyperparameters
+
+### 5. Escaping Local Minimum (Good!)
+
+Sometimes cost needs to increase temporarily to find a better minimum:
+
+```
+Epoch 100: Cost = 0.20  ← Stuck in shallow minimum
+Epoch 200: Cost = 0.25  ← Escapes!
+Epoch 300: Cost = 0.08  ← Finds deeper minimum (better!)
+```
+
+**How to recognize:** Cost rises then drops significantly below previous minimum. Keep training!
+
+## Cost Stuck / Not Decreasing
+
+**"My cost is stuck at 0.2 and won't improve!"**
+
+### Quick Fixes (Try in Order):
+
+1. **Increase Learning Rate**
+   ```python
+   learning_rate=0.01  # Instead of 0.001
+   ```
+   Most common cause - learning rate too low.
+
+2. **Train Longer**
+   ```python
+   epochs=2000  # Instead of 500
+   ```
+   Sometimes it just needs more time.
+
+3. **Restart with Different Initialization**
+   Just re-run the script. Random weights might have started in a bad spot.
+
+4. **Relax Gradient Clipping**
+   ```python
+   clip_value=5  # Instead of 1
+   ```
+   Too tight clipping prevents large updates needed to escape plateaus.
+
+5. **Check Data Normalization**
+   ```python
+   # RGB should be divided by 255:
+   normalized = [r/255.0, g/255.0, b/255.0]
+   ```
+
+6. **Add More Neurons/Layers**
+   Network might be too small to learn the pattern.
+
+7. **Switch Cost Function**
+   ```python
+   cost_function='mae'  # Try MAE instead of MSE
+   ```
+
+8. **Check if 0.2 is Actually Good**
+   - For binary classification: Cost ~0.5 = random, ~0.2 = decent, ~0.05 = very good
+   - Check actual accuracy on test data!
+
+## Understanding Cost vs Accuracy
+
+**"My cost is 0.8 but accuracy is 96% - is this normal?"**
+
+**Yes! Cost and accuracy measure different things:**
+
+**Accuracy** = "Did you get the right class?" (binary: correct or wrong)
+**Cost** = "How confident and correct are your predictions?" (continuous)
+
+### Example:
+
+For binary classification with sigmoid output and targets `[1, 0]`:
+
+```python
+# Barely correct prediction:
+predicted = [0.6, 0.4]  # Correct! (0.6 > 0.4)
+target = [1, 0]
+cost = 0.5*(0.6-1)² + 0.5*(0.4-0)² = 0.16
+accuracy = 100%  # Classified correctly!
+
+# Very confident prediction:
+predicted = [0.99, 0.01]  # Very confident!
+target = [1, 0]
+cost = 0.5*(0.99-1)² + 0.5*(0.01-0)² = 0.00005
+accuracy = 100%  # Also classified correctly!
+```
+
+**What different costs mean:**
+
+| Cost | Meaning | Example Prediction |
+|------|---------|-------------------|
+| ~0.0-0.1 | Very confident, correct | `[0.95, 0.05]` vs target `[1, 0]` |
+| ~0.2-0.4 | Correct but low confidence | `[0.7, 0.3]` vs target `[1, 0]` |
+| ~0.5-0.8 | Barely correct or wrong | `[0.55, 0.45]` vs target `[1, 0]` |
+| ~1.0+ | Very wrong | `[0.2, 0.8]` vs target `[1, 0]` |
+
+**High accuracy + high cost = network knows the answer but isn't confident**
+
+Solution: Keep training to improve confidence (reduce cost).
+
+## Negative Costs
+
+**"My cost is -13.0 - how is that possible?!"**
+
+**This means you're using Binary Cross-Entropy with [-1, 1] target data!**
+
+Binary CE requires targets in [0, 1] range. See the [Binary Cross-Entropy section](#binary-cross-entropy) for details.
+
+**Quick fix:**
+```python
+# Option 1: Change data format to [0, 1]
+target_data = [[1, 0], [0, 1], ...]  # Instead of [[1, -1], [-1, 1], ...]
+
+# Option 2: Use MSE/MAE instead
+training = Training(net, ..., cost_function='mse')  # Works with [-1, 1] data
+```
+
+## Recommended Hyperparameters
+
+Based on common usage in this repo:
+
+### Learning Rate
+
+| Scenario | Recommended LR |
+|----------|---------------|
+| **Initial training (simple problem)** | 0.001 to 0.01 |
+| **Initial training (complex problem)** | 0.0001 to 0.001 |
+| **Continue training (fine-tuning)** | 0.00005 to 0.0001 (10x lower) |
+| **Cost exploding** | Divide current LR by 10 |
+| **Cost stuck** | Multiply current LR by 10 |
+
+### Gradient Clipping
+
+| Scenario | Recommended clip_value |
+|----------|----------------------|
+| **Default / Most cases** | 5 |
+| **Gradient explosion** | 1 |
+| **Cost stuck at plateau** | 10 |
+
+### Epochs
+
+| Scenario | Recommended epochs |
+|----------|-------------------|
+| **Simple problems (XOR)** | 500-1000 |
+| **Medium problems (RGB, Sine)** | 1000-3000 |
+| **Complex problems (Checkerboard)** | 3000-5000 |
+| **Continue training** | 300-500 |
+
+**Pro tip:** Use checkpointing (enabled by default) and just set a high epoch count (5000+). Training will auto-save the best model even if it overfits later!
 -----
