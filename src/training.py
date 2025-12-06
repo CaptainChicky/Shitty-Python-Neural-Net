@@ -9,7 +9,7 @@ class Training:
     # cost_function options: 'mse', 'mae', 'binary_crossentropy', 'categorical_crossentropy'
     # See compatibility notes below for which cost function to use with which output activation
     # checkpoint_path: Optional path to save best model during training (None = no checkpointing)
-    def __init__(self, neural_net, learning_rate, clip_value, cost_function='mse', checkpoint_path=None):
+    def __init__(self, neural_net, learning_rate, clip_value, cost_function=None, checkpoint_path=None):
         self.neural_net = neural_net
         self.learning_rate = learning_rate
         self.clip_value = clip_value
