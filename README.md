@@ -1,14 +1,17 @@
 # Shitty-Python-Neural-Net
 read the title lmao
 
-I don't plan to update this in the forseeable future. Pull requests/issues welcome.
+more concretely, this is a framework for building multilayer perceptrons
+
+I don't plan to update this in the forseeable future. Pull requests/issues welcome (assuming anyone even comes across this repo lmao).
 
 # Todo
-1. ~~Make the someActivationFunction.derivative thing work instead of manually setting it in layers~~ ✅ DONE - now automatically detects and sets derivatives
+ - [x] Make the someActivationFunction.derivative thing work instead of manually setting it in layers
+    - now automatically detects and sets derivatives
 2. ~~Instead of MSE cost, use cross entropy~~ ✅ DONE - added cost_function parameter with MSE, MAE, Binary Cross-Entropy, and Categorical Cross-Entropy support
 3. ~~Perhaps instead of tanh as the output layer activation function, use softmax, or maybe even sigmoid~~ ✅ DONE - output activation is no longer hardcoded, defaults to tanh but can be overridden with softmax, sigmoid, or any activation
 4. ~~Allow the training to choose a certain subset of the total data to train with for a single epoch~~ ✅ DONE - added `samples_per_epoch` parameter to randomly sample a subset each epoch
-5. ~~Optimize double forward propagation in training~~ ✅ DONE - backprop now returns both gradients and predictions
+5. ~~Optimize double forward propagation in training~~ ✅ DONE - backprop now returns both gradients and predictions so backprop doesn't have to run twice
 6. ~~Allow custom alpha values for leaky relu (currently hardcoded to 0.01)~~ ✅ DONE - now supports activation_params dict for all parametric activations, and weight_init_params/bias_init_params for initializers
 
 # Known Issues
