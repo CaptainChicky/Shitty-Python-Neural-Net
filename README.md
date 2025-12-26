@@ -34,7 +34,8 @@ If the overall dataset size is small, the network may overfit. For example, the 
 The network initializes weights and biases randomly, so training results may vary between runs. So I guess you can just initialize multiple times and pick the best one, then continue training from there. You could also set a random seed for reproducibility if desired (I haven't implemented, but you can set `np.random.seed(your_seed)` at the start of your script). 
 
 # Usage
-Run the main scripts lmao and change them as you'd like to make your own neural net.
+Run the main scripts lmao and change them as you'd like to make your own MLP neural net.
+<img>https://media.tenor.com/E_41h0i3pdAAAAAe/fluttershy-mlp.png</img>
 
 ## Basic Training
 ```python
