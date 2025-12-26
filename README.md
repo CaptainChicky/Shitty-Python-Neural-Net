@@ -8,20 +8,28 @@ I don't plan to update this in the forseeable future. Pull requests/issues welco
 # Todo
  - [x] Make the someActivationFunction.derivative thing work instead of manually setting it in layers
     - now automatically detects and sets derivatives
-2. ~~Instead of MSE cost, use cross entropy~~ ✅ DONE - added cost_function parameter with MSE, MAE, Binary Cross-Entropy, and Categorical Cross-Entropy support
-3. ~~Perhaps instead of tanh as the output layer activation function, use softmax, or maybe even sigmoid~~ ✅ DONE - output activation is no longer hardcoded, defaults to tanh but can be overridden with softmax, sigmoid, or any activation
-4. ~~Allow the training to choose a certain subset of the total data to train with for a single epoch~~ ✅ DONE - added `samples_per_epoch` parameter to randomly sample a subset each epoch
-5. ~~Optimize double forward propagation in training~~ ✅ DONE - backprop now returns both gradients and predictions so backprop doesn't have to run twice
-6. ~~Allow custom alpha values for leaky relu (currently hardcoded to 0.01)~~ ✅ DONE - now supports activation_params dict for all parametric activations, and weight_init_params/bias_init_params for initializers
+ - [x] Instead of MSE cost, use cross entropy
+    - added `cost_function` parameter with MSE, MAE, and bin/cat CE options
+ - [x] Perhaps instead of tanh as the output layer activation function, use softmax, or maybe even sigmoid
+    - output activation is no longer hardcoded, defaults to tanh but can be overridden with softmax, sigmoid, or any activation
+ - [x] Allow the training to choose a certain subset of the total data to train with for a single epoch
+    - added `samples_per_epoch` parameter to randomly sample a subset each epoch
+ - [x] Optimize double forward propagation in training
+    - backprop now returns both gradients and predictions so during training, backprop doesn't have to run twice
+ - [x] Allow custom alpha values for leaky relu (currently hardcoded to 0.01)
+    - now supports activation_params dict for all parametric activations, and weight_init_params/bias_init_params for initializers
 
 # Known Issues
-If you set the learning rate too high (>0.001), too high of a clipping barrier (haven't tested but its a given because when I didn't clip, it just killed itself), or initialize layer weights to be too large (I initially did it with a normal distr mean0 and std1, but I had to lower the std), this network will diverge due to exploding gradients. This is a common issue with neural networks, and is usually solved by clipping the network or by using a lower learning rate. It's quite odd that such a small network will diverge, especially when the gradient technically is already clipped at 1 due to the implementation of leaky relu, but whatever lmao.
+If you set...
+ - the learning rate too high (>0.001)
+ - too high of a clipping barrier (haven't tested but its a given because when I didn't clip, it just killed itself)
+ - or initialize layer weights to be too large (I initially did it with a normal distr mean0 and std1, but I had to lower the std)
 
-**He/Xavier initialization requires normalized data!** If you use `weight_init='he'` or `weight_init='xavier'` with unnormalized data (e.g., raw RGB 0-255), the large inputs × large weights = exploding activations and training fails (cost stuck at 1.0 or NaN). Either normalize your data first (divide RGB by 255.0 to get 0-1 range), or use `weight_init='normal', weight_init_params={'std': 0.01}` as a workaround (not ideal but works).
+the network will diverge due to vanishing or exploding gradients (see `/docs/GRADIENT_ANALYSIS.md` for additional details). This apparently is a common issue with neural networks, and is usually solved by clipping the network or by using a lower learning rate.
 
-Since the total possible training dataset is just 256<sup>3</sup> possible inputs, the network may overfit. Use `samples_per_epoch` to train on a random subset each epoch for regularization (see Training section below).
+**He/Xavier initialization requires normalized data!** If you use `weight_init='he'` or `weight_init='xavier'` with unnormalized data (e.g., raw RGB 0-255), the large inputs × large weights = exploding activations and training fails. Either normalize your data first (divide RGB by 255.0 to get 0-1 range), or use `weight_init='normal', weight_init_params={'std': 0.01}` as a workaround (not ideal but works).
 
-The neural network is undertrained for values near (0, 0, 0) and (255, 255, 255) so it will output incorrect answers. This is likely due to the way how I've generated my data, but whatever lmao.
+If the overall dataset size, the network may overfit. For example, the RGB classification problem has only 256<sup>3</sup> possible inputs. Use `samples_per_epoch` to train on a random subset each epoch for regularization (see Training section below). I don't know if a supposed "grokking" phenomenon would occur, so further testing is needed.
 
 # Usage
 Run the main scripts lmao and change them as you'd like to make your own neural net.
