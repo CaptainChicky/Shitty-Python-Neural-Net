@@ -35,7 +35,8 @@ The network initializes weights and biases randomly, so training results may var
 
 # Usage
 Run the main scripts lmao and change them as you'd like to make your own MLP neural net.
-<img>https://media.tenor.com/E_41h0i3pdAAAAAe/fluttershy-mlp.png</img>
+
+<img src="/docs/fluttershy-mlp.png" alt="Fluttershy MLP" width="200"/>
 
 ## Basic Training
 ```python
