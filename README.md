@@ -27,9 +27,11 @@ If you set...
 
 the network will diverge due to vanishing or exploding gradients (see `/docs/GRADIENT_ANALYSIS.md` for additional details). This apparently is a common issue with neural networks, and is usually solved by clipping the network or by using a lower learning rate.
 
-**He/Xavier initialization requires normalized data!** If you use `weight_init='he'` or `weight_init='xavier'` with unnormalized data (e.g., raw RGB 0-255), the large inputs × large weights = exploding activations and training fails. Either normalize your data first (divide RGB by 255.0 to get 0-1 range), or use `weight_init='normal', weight_init_params={'std': 0.01}` as a workaround (not ideal but works).
+**He/Xavier initialization requires normalized data!** If you use `weight_init='he'` or `weight_init='xavier'` with unnormalized data (e.g., raw RGB 0-255), the large inputs × large weights = exploding activations and training fails. Either normalize your data first (divide RGB by 255.0 to get 0-1 range), or use a weight init like `weight_init='normal', weight_init_params={'std': 0.01}`.
 
-If the overall dataset size, the network may overfit. For example, the RGB classification problem has only 256<sup>3</sup> possible inputs. Use `samples_per_epoch` to train on a random subset each epoch for regularization (see Training section below). I don't know if a supposed "grokking" phenomenon would occur, so further testing is needed.
+If the overall dataset size is small, the network may overfit. For example, the RGB classification problem has only 256<sup>3</sup> possible inputs. Use `samples_per_epoch` to train on a random subset each epoch for regularization. I don't know if a supposed "grokking" phenomenon would occur, so further testing is needed.
+
+The network initializes weights and biases randomly, so training results may vary between runs. So I guess you can just initialize multiple times and pick the best one, then continue training from there. You could also set a random seed for reproducibility if desired (I haven't implemented, but you can set `np.random.seed(your_seed)` at the start of your script). 
 
 # Usage
 Run the main scripts lmao and change them as you'd like to make your own neural net.
