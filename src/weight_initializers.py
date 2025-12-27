@@ -81,6 +81,47 @@ class WeightInitializer:
         """
         std = np.sqrt(2.0 / fan_in)
         return np.random.randn(*shape) * std
+    
+    @staticmethod
+    @with_title("lecun_normal")
+    def lecun_normal(shape, fan_in):
+        """
+        LeCun Normal initialization - designed for SELU and tanh activations.
+        Keeps the variance of activations stable across layers.
+
+        Formula: std = sqrt(1 / fan_in)
+
+        This is REQUIRED for SELU to maintain its self-normalizing properties.
+        Also works well with tanh activation.
+
+        Args:
+            shape: Tuple specifying the shape of the weight matrix
+            fan_in: Number of input units (previousLayer_size)
+
+        Returns:
+            Numpy array initialized with LeCun Normal strategy
+        """
+        std = np.sqrt(1.0 / fan_in)
+        return np.random.randn(*shape) * std
+
+    @staticmethod
+    @with_title("lecun_uniform")
+    def lecun_uniform(shape, fan_in):
+        """
+        LeCun Uniform initialization - uniform distribution variant of LeCun init.
+        Alternative to LeCun Normal, also designed for SELU and tanh.
+
+        Formula: limit = sqrt(3 / fan_in)
+
+        Args:
+            shape: Tuple specifying the shape of the weight matrix
+            fan_in: Number of input units (previousLayer_size)
+
+        Returns:
+            Numpy array with uniform LeCun initialization
+        """
+        limit = np.sqrt(3.0 / fan_in)
+        return np.random.uniform(-limit, limit, shape)
 
     @staticmethod
     @with_title("uniform")
@@ -198,3 +239,4 @@ class BiasInitializer:
             Numpy array with values sampled from N(0, std^2)
         """
         return np.random.randn(shape) * std
+

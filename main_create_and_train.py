@@ -13,7 +13,7 @@ from activation_functions import ActivationFunction
 ############################################################################################################
 # CONFIGURATION SELECTOR - Change this number to select which model to train (1-7)
 ############################################################################################################
-CONFIG_TO_RUN = 7
+CONFIG_TO_RUN = 4
 
 ############################################################################################################
 # CONFIGURATION DEFINITIONS
@@ -138,23 +138,23 @@ def get_configuration(config_num):
             'name': 'Checkerboard Pattern',
             'description': 'Classify grid squares as black or white (chess board)',
             'architecture': '2 → 20 → 16 → 12 → 2',
-            'details': 'SELU pure (self-normalizing) + He init + Tanh output + MSE',
+            'details': 'SELU pure (self-normalizing) + LeCun Normal init + Tanh output + MSE',
             'layers': lambda: [
                 Layer(2, 2, 'input'),
                 Layer(2, 20, 'hidden',
                       activation_func=ActivationFunction.selu,
                       activation_params={'alpha': 1.67326324, 'scale': 1.05070098},
-                      weight_init='he',
+                      weight_init='lecun_normal',
                       bias_init='zeros'),
                 Layer(20, 16, 'hidden',
                       activation_func=ActivationFunction.selu,
                       activation_params={'alpha': 1.67326324, 'scale': 1.05070098},
-                      weight_init='he',
+                      weight_init='lecun_normal',
                       bias_init='zeros'),
                 Layer(16, 12, 'hidden',
                       activation_func=ActivationFunction.selu,
                       activation_params={'alpha': 1.67326324, 'scale': 1.05070098},
-                      weight_init='he',
+                      weight_init='lecun_normal',
                       bias_init='zeros'),
                 Layer(12, 2, 'output',
                       activation_func=ActivationFunction.tanh)

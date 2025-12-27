@@ -98,7 +98,7 @@ class Layer:
         # Special handling for initializers that need fan_in/fan_out
         if weight_init == 'xavier' or weight_init == 'uniform_xavier':
             self.weights = weight_init_func(weight_shape, previousLayer_size, layer_size, **weight_init_params)
-        elif weight_init == 'he':
+        elif weight_init == 'he' or weight_init == 'lecun_normal' or weight_init == 'lecun_uniform':
             self.weights = weight_init_func(weight_shape, previousLayer_size, **weight_init_params)
         else:
             # Normal, uniform, etc.
