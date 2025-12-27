@@ -101,3 +101,5 @@ neural_net.save('models/model_final.json')
 2. [Cost Functions Documentation](docs/COST_FUNCTION_GUIDE.md)
 3. [Gradient Analysis Documentation](docs/GRADIENT_ANALYSIS.md)
 4. [Training Guide Documentation](docs/TRAINING_GUIDE.md)
+
+## Make sure to also check out `/visualization/` :3
