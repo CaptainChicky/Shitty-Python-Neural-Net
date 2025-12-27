@@ -11,7 +11,7 @@ from training import Training
 ############################################################################################################
 # CONFIGURATION SELECTOR - Change this number to select which model to continue training (1-7)
 ############################################################################################################
-CONFIG_TO_RUN = 4
+CONFIG_TO_RUN = 3
 
 ############################################################################################################
 # CONFIGURATION DEFINITIONS
@@ -26,14 +26,14 @@ def get_configuration(config_num):
     configs = {
         1: {
             'name': 'RGB Red Color Classification',
-            'model_file': 'model_red.json',
+            'model_file': 'model_optimized_red.json',
             'data_file': 'color_data.json',
             'input_key': 'RGB_Values',
             'output_key': 'Is_Red',
-            'learning_rate': 0.00005,  # Lower LR for fine-tuning
+            'learning_rate': 0.00001,  # Lower LR for fine-tuning
             'clip_value': 4,
             'num_epochs': 300,
-            'num_samples': 900,
+            'num_samples': 2000,
             'cost_function': 'mse' # we initially trained with mae, but we can switch cost functions! Now mse :)
             # like we can switch between mse ⟷ mae, but switching to or from a CE is trickly, refer to readme!!
         },
@@ -53,7 +53,7 @@ def get_configuration(config_num):
 
         3: {
             'name': 'Sine Wave Classification',
-            'model_file': 'model_sine.json',
+            'model_file': 'model_optimized_sine.json',
             'data_file': 'sine_data.json',
             'input_key': 'Input_Values',
             'output_key': 'Output_Values',

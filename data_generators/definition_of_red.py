@@ -2,142 +2,321 @@ import json
 import math
 import random
 import os
+import numpy as np
 
-# The color red basically is defined as follows
-# Create an RGB color triple (r, g, b) and graph it on a 3D coordinate system with each axis being one of r, g, or b
-# The color red is defined as any point that is within 127 units (inclusive) of the point (255, 0, 0) in this 3D coordinate system
-# Basically its like part of a sphere with radius 127 centered at (255, 0, 0), and anything in this sphere is considered red
+# The color red is defined as within 127 units of (255, 0, 0) in RGB space
 def is_color_red(r, g, b):
-
-    # Define the coordinates for the "definition" of the red point (255, 0, 0)
     red_point = (255, 0, 0)
-
-    # Calculate the distance between the given color and the red point
-    # 3D distance formula is as follows for two points (x1, y1, z1) and (x2, y2, z2):`
-    # distance = sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2`
     distance = math.sqrt((r - red_point[0])**2 + (g - red_point[1])**2 + (b - red_point[2])**2)
+    return distance <= 127
 
-    # Check if the distance is less than or equal to 127
-    if distance <= 127:
-        return True
-    else:
-        return False
-
-# Generate what the neural net is supposed to output for a given color
 def generate_output(isRed):
-    # If the color is red, we want the output to be (1, -1)
-    # If the color is not red, we want the output to be (-1, 1)
     if isRed:
         return (1, -1)
     else:
         return (-1, 1)
-    
 
-# Here is some more in depth explanation on what the output means: 
-#   If we input a rbg value (r, b, g), we expect an output in the form (x, y) where x and y are between -1 and 1
-#   The values are normalized between -1 and 1, so the absolute confidence that a color is red is (1, -1), and vice versa
-#   We're basically looking for a difference of y - x = -2 when the color is red, and a difference of y - x = 2 when the color is not red
-#   This is a wierd way to define red, because we can simply use one node in the neural net, but it is good practice to use two nodes as it is more generalizable
-#   The reason we're not using values between 0 and 1 is because values between -1 and 1 have more flexibility and imo sigmoid just sucks as a function
-
-
-# Generate training or testing data
-
-# Function to generate random RGB triples (r, g, b) where r, g, and b are between 0 and 255
 def generate_random_rgb():
     return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
+def generate_boundary_focused_rgb(is_red_class, min_radius, max_radius):
+    """
+    Generate RGB values specifically near the boundary sphere.
+    """
+    center = np.array([255, 0, 0])
+    
+    max_attempts = 10000
+    for _ in range(max_attempts):
+        radius = random.uniform(min_radius, max_radius)
+        
+        # Random direction (spherical coordinates)
+        theta = random.uniform(0, 2 * math.pi)
+        phi = random.uniform(0, math.pi)
+        
+        # Convert to Cartesian coordinates
+        x = radius * math.sin(phi) * math.cos(theta)
+        y = radius * math.sin(phi) * math.sin(theta)
+        z = radius * math.cos(phi)
+        
+        # Translate to center at (255, 0, 0)
+        rgb = center + np.array([x, y, z])
+        r, g, b = rgb
+        
+        # Check if within valid RGB range [0, 255]
+        if 0 <= r <= 255 and 0 <= g <= 255 and 0 <= b <= 255:
+            r, g, b = int(round(r)), int(round(g)), int(round(b))
+            
+            # Verify it's in the correct class
+            actual_is_red = is_color_red(r, g, b)
+            if actual_is_red == is_red_class:
+                return (r, g, b)
+    
+    print(f"Warning: Boundary generation failed, using fallback")
+    return generate_random_rgb()
 
 ############################################################################################################
-# IMPORTANT: CLASS BALANCE IN TRAINING DATA
+# CONFIGURATION
 ############################################################################################################
-# When training a neural network for classification, it's critical to have BALANCED data
-# (equal numbers of each class). Here's why:
-#
-# PROBLEM: If you generate 500 random RGB colors, you'll get roughly:
-#   - 95% "not red" colors (473 samples)
-#   - 5% "red" colors (27 samples)
-#
-# This is because the "red" definition (sphere radius 127 centered at (255,0,0)) only covers
-# a small portion of the entire RGB color space (256^3 = 16.7 million possible colors).
-#
-# WHY THIS BREAKS TRAINING:
-# The neural network learns to minimize cost (error). With 95% "not red" samples, it discovers
-# a lazy strategy: "Always predict 'not red' → 95% accuracy!"
-#
-# This gives:
-#   - High accuracy (95%)
-#   - Zero precision (never correctly predicts red)
-#   - Zero recall (never detects red at all)
-#   - The network literally never outputs "red" for any input
-#
-# SOLUTION: Generate BALANCED data with 50% red and 50% not-red samples
-# This forces the network to actually learn the pattern instead of exploiting class imbalance.
-############################################################################################################
+samples_per_class_regular = 400
+samples_per_class_boundary = 300
+axis_samples_per_axis = 300
 
-# Number of samples per class (red and not-red)
-# Total dataset will be 2x this number
-samples_per_class = 500  # 500 red + 500 not-red = 1000 total
+print("=" * 80)
+print(" " * 20 + "RGB RED COLOR DATA GENERATION")
+print("=" * 80)
+print(f"\nConfiguration:")
+print(f"  Phase 1 - Regular samples:        {samples_per_class_regular} per class")
+print(f"  Phase 2 - Boundary samples:       {samples_per_class_boundary} per class")
+print(f"  Phase 3 - Axis-aligned samples:   {axis_samples_per_axis} per axis")
+print(f"  Expected total:                   ~1800 samples")
+print("=" * 80)
 
-
-# Separate sets for red and not-red samples to ensure balance
 red_samples = set()
 not_red_samples = set()
 
-print("Generating balanced dataset...")
-print(f"Target: {samples_per_class} red samples, {samples_per_class} not-red samples")
+############################################################################################################
+# PHASE 1: Regular generation
+############################################################################################################
+print(f"\n{'='*80}")
+print("PHASE 1: REGULAR SAMPLES (Random across entire RGB space)")
+print(f"{'='*80}")
+print(f"Target: {samples_per_class_regular} red, {samples_per_class_regular} not-red")
 
-# Keep generating until we have enough of EACH class
-# This ensures 50-50 balance instead of the natural ~5-95 imbalance
+phase1_red_start = len(red_samples)
+phase1_not_red_start = len(not_red_samples)
+
 attempts = 0
-max_attempts = 100000  # Safety limit to prevent infinite loop
+max_attempts = 100000
 
-while (len(red_samples) < samples_per_class or len(not_red_samples) < samples_per_class) and attempts < max_attempts:
+while (len(red_samples) < samples_per_class_regular or 
+       len(not_red_samples) < samples_per_class_regular) and attempts < max_attempts:
     rgb = generate_random_rgb()
     attempts += 1
 
-    # Only add to the appropriate set if that set isn't full yet
-    if is_color_red(*rgb) and len(red_samples) < samples_per_class:
+    if is_color_red(*rgb) and len(red_samples) < samples_per_class_regular:
         red_samples.add(rgb)
-    elif not is_color_red(*rgb) and len(not_red_samples) < samples_per_class:
+    elif not is_color_red(*rgb) and len(not_red_samples) < samples_per_class_regular:
         not_red_samples.add(rgb)
 
-    # Progress update every 10,000 attempts
     if attempts % 10000 == 0:
-        print(f"  Attempt {attempts}: {len(red_samples)} red, {len(not_red_samples)} not-red")
+        print(f"  Attempt {attempts:6d}: {len(red_samples):3d} red, {len(not_red_samples):3d} not-red")
 
-print(f"\nGeneration complete after {attempts} attempts:")
-print(f"  Red samples: {len(red_samples)}")
-print(f"  Not-red samples: {len(not_red_samples)}")
+phase1_red_added = len(red_samples) - phase1_red_start
+phase1_not_red_added = len(not_red_samples) - phase1_not_red_start
 
-# Combine both sets and shuffle to mix red and not-red samples randomly
-# (important so the network doesn't see all reds first, then all not-reds)
-all_samples = list(red_samples) + list(not_red_samples)
+print(f"\n✅ Phase 1 Complete (after {attempts} attempts):")
+print(f"   Red samples added:     {phase1_red_added}")
+print(f"   Not-red samples added: {phase1_not_red_added}")
+print(f"   Total so far:          {len(red_samples) + len(not_red_samples)}")
+
+# Show some examples
+print(f"\n   Sample red colors from Phase 1:")
+for rgb in list(red_samples)[:3]:
+    dist = math.sqrt((rgb[0]-255)**2 + rgb[1]**2 + rgb[2]**2)
+    print(f"     RGB{rgb} → distance={dist:.1f}")
+print(f"   Sample not-red colors from Phase 1:")
+for rgb in list(not_red_samples)[:3]:
+    dist = math.sqrt((rgb[0]-255)**2 + rgb[1]**2 + rgb[2]**2)
+    print(f"     RGB{rgb} → distance={dist:.1f}")
+
+############################################################################################################
+# PHASE 2: Boundary-focused generation
+############################################################################################################
+print(f"\n{'='*80}")
+print("PHASE 2: BOUNDARY-FOCUSED SAMPLES (Dense sampling near decision boundary)")
+print(f"{'='*80}")
+
+phase2_red_start = len(red_samples)
+phase2_not_red_start = len(not_red_samples)
+
+# Generate red samples near inner boundary (radius 100-127)
+print(f"\nGenerating {samples_per_class_boundary} RED samples (radius 100-127, just inside boundary)...")
+for i in range(samples_per_class_boundary):
+    rgb = generate_boundary_focused_rgb(is_red_class=True, min_radius=100, max_radius=127)
+    red_samples.add(rgb)
+    if (i + 1) % 100 == 0:
+        print(f"  Generated {i + 1:3d}/{samples_per_class_boundary} boundary red samples")
+
+# Generate not-red samples near outer boundary (radius 127-154)
+print(f"\nGenerating {samples_per_class_boundary} NOT-RED samples (radius 127-154, just outside boundary)...")
+for i in range(samples_per_class_boundary):
+    rgb = generate_boundary_focused_rgb(is_red_class=False, min_radius=127, max_radius=154)
+    not_red_samples.add(rgb)
+    if (i + 1) % 100 == 0:
+        print(f"  Generated {i + 1:3d}/{samples_per_class_boundary} boundary not-red samples")
+
+phase2_red_added = len(red_samples) - phase2_red_start
+phase2_not_red_added = len(not_red_samples) - phase2_not_red_start
+
+print(f"\n✅ Phase 2 Complete:")
+print(f"   Red samples added:     {phase2_red_added} (unique after deduplication)")
+print(f"   Not-red samples added: {phase2_not_red_added} (unique after deduplication)")
+print(f"   Total so far:          {len(red_samples) + len(not_red_samples)}")
+
+# Show boundary samples
+print(f"\n   Sample boundary red colors:")
+boundary_reds = [rgb for rgb in red_samples if 100 <= math.sqrt((rgb[0]-255)**2 + rgb[1]**2 + rgb[2]**2) <= 127]
+for rgb in list(boundary_reds)[:3]:
+    dist = math.sqrt((rgb[0]-255)**2 + rgb[1]**2 + rgb[2]**2)
+    print(f"     RGB{rgb} → distance={dist:.1f}")
+
+############################################################################################################
+# PHASE 3: Axis-aligned samples
+############################################################################################################
+print(f"\n{'='*80}")
+print("PHASE 3: AXIS-ALIGNED SAMPLES (Cover R-axis and other critical regions)")
+print(f"{'='*80}")
+
+phase3_red_start = len(red_samples)
+phase3_not_red_start = len(not_red_samples)
+
+# R-axis samples (varying R, G=0, B=0)
+print(f"\nR-axis samples (R varies, G=0, B=0):")
+r_axis_red = 0
+r_axis_not_red = 0
+for i in range(axis_samples_per_axis):
+    r = int(random.uniform(0, 255))
+    g = 0
+    b = 0
+    if is_color_red(r, g, b):
+        red_samples.add((r, g, b))
+        r_axis_red += 1
+    else:
+        not_red_samples.add((r, g, b))
+        r_axis_not_red += 1
+print(f"  Generated: {r_axis_red} red, {r_axis_not_red} not-red")
+print(f"  Boundary at R={255-127}={128} (anything R<128 with G=0,B=0 is NOT red)")
+
+# G-axis samples (R=255, varying G, B=0)
+print(f"\nG-axis samples (R=255, G varies, B=0):")
+g_axis_red = 0
+g_axis_not_red = 0
+for i in range(axis_samples_per_axis):
+    r = 255
+    g = int(random.uniform(0, 255))
+    b = 0
+    if is_color_red(r, g, b):
+        red_samples.add((r, g, b))
+        g_axis_red += 1
+    else:
+        not_red_samples.add((r, g, b))
+        g_axis_not_red += 1
+print(f"  Generated: {g_axis_red} red, {g_axis_not_red} not-red")
+print(f"  Boundary at G={127} (anything G>127 with R=255,B=0 is NOT red)")
+
+# B-axis samples (R=255, G=0, varying B)
+print(f"\nB-axis samples (R=255, G=0, B varies):")
+b_axis_red = 0
+b_axis_not_red = 0
+for i in range(axis_samples_per_axis):
+    r = 255
+    g = 0
+    b = int(random.uniform(0, 255))
+    if is_color_red(r, g, b):
+        red_samples.add((r, g, b))
+        b_axis_red += 1
+    else:
+        not_red_samples.add((r, g, b))
+        b_axis_not_red += 1
+print(f"  Generated: {b_axis_red} red, {b_axis_not_red} not-red")
+print(f"  Boundary at B={127}")
+
+# Diagonal samples (varying all three proportionally)
+print(f"\nDiagonal samples (R=G=B, line from black to white):")
+diag_red = 0
+diag_not_red = 0
+for i in range(axis_samples_per_axis):
+    t = random.uniform(0, 1)
+    r = int(255 * t)
+    g = int(255 * t)
+    b = int(255 * t)
+    if is_color_red(r, g, b):
+        red_samples.add((r, g, b))
+        diag_red += 1
+    else:
+        not_red_samples.add((r, g, b))
+        diag_not_red += 1
+print(f"  Generated: {diag_red} red, {diag_not_red} not-red")
+print(f"  (All diagonal points should be NOT red since they're far from (255,0,0))")
+
+phase3_red_added = len(red_samples) - phase3_red_start
+phase3_not_red_added = len(not_red_samples) - phase3_not_red_start
+
+print(f"\n✅ Phase 3 Complete:")
+print(f"   Red samples added:     {phase3_red_added} (unique after deduplication)")
+print(f"   Not-red samples added: {phase3_not_red_added} (unique after deduplication)")
+print(f"   Total samples:         {len(red_samples) + len(not_red_samples)}")
+
+############################################################################################################
+# Combine and save
+############################################################################################################
+print(f"\n{'='*80}")
+print("FINAL DATASET SUMMARY")
+print(f"{'='*80}")
+
+print(f"\nSamples by phase:")
+print(f"  Phase 1 (Regular):         {phase1_red_added} red + {phase1_not_red_added} not-red = {phase1_red_added + phase1_not_red_added}")
+print(f"  Phase 2 (Boundary):        {phase2_red_added} red + {phase2_not_red_added} not-red = {phase2_red_added + phase2_not_red_added}")
+print(f"  Phase 3 (Axis-aligned):    {phase3_red_added} red + {phase3_not_red_added} not-red = {phase3_red_added + phase3_not_red_added}")
+print(f"  {'─'*60}")
+print(f"  TOTAL (unique):            {len(red_samples)} red + {len(not_red_samples)} not-red = {len(red_samples) + len(not_red_samples)}")
+
+# Class balance
+total = len(red_samples) + len(not_red_samples)
+red_pct = len(red_samples) / total * 100
+not_red_pct = len(not_red_samples) / total * 100
+print(f"\nClass balance:")
+print(f"  Red:     {len(red_samples):4d} ({red_pct:.1f}%)")
+print(f"  Not-red: {len(not_red_samples):4d} ({not_red_pct:.1f}%)")
+
+# Distance distribution
+all_red_list = list(red_samples)
+all_not_red_list = list(not_red_samples)
+
+red_distances = [math.sqrt((r-255)**2 + g**2 + b**2) for r, g, b in all_red_list]
+not_red_distances = [math.sqrt((r-255)**2 + g**2 + b**2) for r, g, b in all_not_red_list]
+
+print(f"\nDistance from (255,0,0) statistics:")
+print(f"  Red samples:     min={min(red_distances):.1f}, max={max(red_distances):.1f}, avg={np.mean(red_distances):.1f}")
+print(f"  Not-red samples: min={min(not_red_distances):.1f}, max={max(not_red_distances):.1f}, avg={np.mean(not_red_distances):.1f}")
+print(f"  Decision boundary at distance = 127")
+
+# Combine and shuffle
+all_samples = all_red_list + all_not_red_list
 random.shuffle(all_samples)
 
-# Create input data (RGB values) and output data (red or not-red labels)
+# Create input and output data
 data_entry_1 = all_samples
 data_entry_2 = []
 for r, g, b in data_entry_1:
     is_red = is_color_red(r, g, b)
     data_entry_2.append(generate_output(is_red))
 
-# Verify the balance (should be 50-50)
+# Verify balance (should match unique counts)
 num_red = sum(1 for output in data_entry_2 if output == (1, -1))
 num_not_red = sum(1 for output in data_entry_2 if output == (-1, 1))
-print(f"\nFinal dataset composition:")
-print(f"  Red: {num_red} ({num_red/len(data_entry_2)*100:.1f}%)")
-print(f"  Not red: {num_not_red} ({num_not_red/len(data_entry_2)*100:.1f}%)")
 
-# Combine the data entries into a dictionary
+print(f"\nFinal data verification:")
+print(f"  Red:     {num_red} ({num_red/len(data_entry_2)*100:.1f}%)")
+print(f"  Not-red: {num_not_red} ({num_not_red/len(data_entry_2)*100:.1f}%)")
+
+# Save
 data = {
     "RGB_Values": data_entry_1,
     "Is_Red": data_entry_2
 }
 
-# Save the data as a JSON file
 data_file = os.path.join(os.path.dirname(__file__), "..", "data", "color_data.json")
 with open(data_file, "w") as file:
     json.dump(data, file)
 
-print(f"\nSaved to {data_file}")
+print(f"\n💾 Saved to: {data_file}")
+print(f"\n{'='*80}")
+print("✅ DATASET GENERATION COMPLETE!")
+print(f"{'='*80}")
+print("\nKey points:")
+print("  ✓ Balanced classes (50-50 red/not-red)")
+print("  ✓ Dense boundary sampling (helps learn spherical shape)")
+print("  ✓ Axis-aligned samples (fixes R-axis triangle problem)")
+print("  ✓ Ready for training!")
+print(f"{'='*80}\n")

@@ -10,7 +10,7 @@ from neural_network import NeuralNet
 
 # Load the trained model
 neural_net = NeuralNet()
-model_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'model_xor.json')
+model_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'model_optimized_xor.json')
 neural_net.load(model_path)
 
 # Load training data

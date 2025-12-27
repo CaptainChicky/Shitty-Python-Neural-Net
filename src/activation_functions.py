@@ -270,7 +270,7 @@ class ActivationFunction:
         Returns:
             Array with Swish applied
         """
-        return x * (1 / (1 + np.exp(-alpha * x)))
+        return x * (1 / (1 + np.exp(-np.clip(alpha * x, -500, 500))))
 
     @staticmethod
     @with_title("swish_derivative")
@@ -290,7 +290,7 @@ class ActivationFunction:
         # Using product rule: d/dx[x * σ(αx)] = σ(αx) + x * α * σ'(αx)
         #                                      = σ(αx) + x * α * σ(αx) * (1 - σ(αx))
         #                                      = σ(αx) + α * Swish(x) * (1 - σ(αx))
-        sigmoid_val = 1 / (1 + np.exp(-alpha * x))
+        sigmoid_val = 1 / (1 + np.exp(-np.clip(alpha * x, -500, 500)))
         swish_val = x * sigmoid_val
         return sigmoid_val + alpha * swish_val * (1 - sigmoid_val)
 
