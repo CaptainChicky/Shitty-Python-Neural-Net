@@ -20,9 +20,9 @@ I don't plan to update this in the forseeable future. Pull requests/issues welco
     - now supports activation_params dict for all parametric activations, and weight_init_params/bias_init_params for initializers
  - [x] Add optimization so the network doesn't train too slowly on large datasets, like mini-batch training?
     - added `batch_size` parameter to Training constructor for mini-batch gradient descent
- - ❌ Allow setting a random seed for reproducibility when initing a network
+❌ Allow setting a random seed for reproducibility when initing a network
     - decided against implementing this, as its trivial and i'm too lazy lol and when creating MLPs you will basically never ever use this
- - ❌ Adding noise to training data when processing (like MNIST) if the data is regularized, to be able to train more robust networks
+❌ Adding noise to training data when processing (like MNIST) if the data is regularized, to be able to train more robust networks
     - decided against this, as that's for the user to process their own data lol
 
 # Known Issues
