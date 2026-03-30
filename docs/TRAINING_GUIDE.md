@@ -8,7 +8,7 @@
 4. Save your model, or if you use checkpointing, it is auto-saved.
 
 ## Continued Training
-To continue training an existing model, edit `main_create_and_train.py` and run the file.
+To continue training an existing model, edit `main_continue_training.py` and run the file.
 
 ## Testing/Evaluating Models
 After training, use `main_load.py` to evaluate your model:
@@ -28,7 +28,7 @@ After training, use `main_load.py` to evaluate your model:
 
 ### My cost is increasing during training
 
-Your earning rate is too high, and gradient descent takes steps that are too large and overshoots the minimum
+Your learning rate is too high, and gradient descent takes steps that are too large and overshoots the minimum
 
 You are overfitting to the training data. If you enabled checkpointing, the best model is still saved. 
 
@@ -55,13 +55,13 @@ For binary classification with sigmoid output and targets `[1, 0]`, an example i
 # Unconfident but correct prediction:
 predicted = [0.6, 0.4]  # Correct! (0.6 > 0.4)
 target = [1, 0]
-cost = 0.5*(0.6-1)² + 0.5*(0.4-0)² = 0.16
+cost = mean(0.5*(0.6-1)², 0.5*(0.4-0)²) = mean(0.08, 0.08) = 0.08
 accuracy = 100%  # Classified correctly!
 
 # Confident but wrong prediction:
 predicted = [0.2, 0.8]  # Wrong! (0.2 < 0.8)
 target = [1, 0]
-cost = 0.5*(0.2-1)² + 0.5*(0.8-0)² = 0.325
+cost = mean(0.5*(0.2-1)², 0.5*(0.8-0)²) = mean(0.32, 0.32) = 0.32
 accuracy = 0%  # Classified incorrectly!
 ```
 
@@ -70,6 +70,10 @@ If your cost ever becomes negative, this means you're using a wrong cost functio
 ## Recommended Parameters
 
 ### Learning Rate
+
+**THESE ARE GENERAL GUIDELINES, AND HONESTLY ARE QUITE INACCURATE SOMETIMES.** YOU SHOULD ALWAYS EXPERIMENT WITH DIFFERENT VALUES **YOURSELF** AND SEE WHAT WORKS BEST FOR YOUR PROBLEM.
+
+**TAKE THESE VALUES BELOW AS A GRAIN OF SALT.** 
 
 | Scenario | Recommended LR |
 |----------|---------------|

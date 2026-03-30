@@ -31,7 +31,7 @@ If you set...
  - too high of a clipping barrier (haven't tested but its a given because when I didn't clip, it just killed itself)
  - or initialize layer weights to be too large (I initially did it with a normal distr mean0 and std1, but I had to lower the std)
 
-the network will diverge due to vanishing or exploding gradients (see `/docs/GRADIENT_ANALYSIS.md` for additional details). This apparently is a common issue with neural networks, and is usually solved by clipping the network or by using a lower learning rate.
+the network will die due to vanishing or exploding gradients (see `/docs/GRADIENT_ANALYSIS.md` for additional details). This apparently is a common issue with neural networks, and is usually solved by clipping the network or by using a lower learning rate.
 
 **He/Xavier initialization requires normalized data!** If you use `weight_init='he'` or `weight_init='xavier'` with unnormalized data (e.g., raw RGB 0-255), the large inputs × large weights = exploding activations and training fails. Either normalize your data first (divide RGB by 255.0 to get 0-1 range), or use a weight init like `weight_init='normal', weight_init_params={'std': 0.01}`.
 
@@ -82,6 +82,8 @@ MNIST data json files are too bulky and annoying, so I've excluded them from the
 Also, even with best model checkpointing, I would recommend making a backup of the model before you run any continue training script, because the checkpointing will save the model after *one gradient step has already been done*, and does not save the original model. This way, if the model just purely gets worse, then you can revert to the original save. Otherwise, checkpointing does its job pretty well.
 
 # Usage
+Install the dependencies (numpy via `pip install numpy`) and make sure you have Python 3.10+ (i'd say run 3.12 to be safe) installed.
+
 Run the data generation scripts to get data. 
 
 Run the main scripts lmao and change them as you'd like to make your own MLP neural net.
@@ -102,7 +104,7 @@ training.train(input_data, target_data, epochs=500, samples_per_epoch=400)
 ```
 
 ## Batch Training
-You can add batch training to average gradients in a batch of size *n* by setting it in the training object. For example, you can just add `batch_size=config.get('batch_size', 1)` to the training object in `main_coninue_training.py` if you want to add mini-batch training to it, and add parameter `'batch_size': 32` to your model training parameters above lol.
+You can add batch training to average gradients in a batch of size *n* by setting it in the training object. For example, you can just add `batch_size=config.get('batch_size', 1)` to the training object in `main_continue_training.py` if you want to add mini-batch training to it, and add parameter `'batch_size': 32` to your model training parameters above lol.
 ```python
 # Make a training object with a default batch size of 1 if not supplied, or whatever the user chose
 training = Training(neural_net, learning_rate=config['learning_rate'], clip_value=config['clip_value'],
